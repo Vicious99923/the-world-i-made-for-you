@@ -1,55 +1,55 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * THE WORLD I MADE FOR YOU — Personal Content Configuration
+ * THE WORLD I MADE FOR YOU — ملف المحتوى
  * ═══════════════════════════════════════════════════════════════
  * 
- * This is the ONLY file you need to edit to personalize the experience.
- * Replace the placeholder text below with your own words.
+ * غير النصوص اللي جوا علامات "..." بكلامك.
+ * الرسالة الأخيرة (finalLetter) اكتبها بنفسك.
  */
 
 export const content = {
   experienceTitle: "THE WORLD I MADE FOR YOU",
-  experienceSubtitle: "A little universe, made with love.",
+  experienceSubtitle: "عالم صغير، اتعمل بحب ♡",
 
   opening: {
-    title: "Every star here was placed for you",
-    subtitle: "Touch the light to begin…",
-    interactionHint: "Click or tap the glowing orb",
+    title: "كل نجمة هنا يا جنجونه اتحطت عشانك",
+    subtitle: "المسي الضوء عشان نبدأ…",
+    interactionHint: "اضغطي على الكرة المضيئة",
   },
 
   garden: {
-    title: "In a world made just for you, everything blooms",
-    subtitle: "Touch the ground and watch it grow…",
+    title: "في عالم اتعمل ليكِ يا هولي، كل حاجة بتزهر",
+    subtitle: "المسي الأرض وشوفيها بتكبر…",
   },
 
   moments: [
-    { id: "moment-1", title: "✦ Your first placeholder title", text: "Write your first special memory or message here…", subtitle: "" },
-    { id: "moment-2", title: "✦ Your second placeholder title", text: "Write your second special memory or message here…", subtitle: "" },
-    { id: "moment-3", title: "✦ Your third placeholder title", text: "Write your third special memory or message here…", subtitle: "" },
-    { id: "moment-4", title: "✦ Your fourth placeholder title", text: "Write your fourth special memory or message here…", subtitle: "" },
-    { id: "moment-5", title: "✦ Your fifth placeholder title", text: "Write your fifth special memory or message here…", subtitle: "" },
+    { id: "moment-1", title: "✦ أول مرة شوفتك", text: "اكتب أول ذكرى أو رسالة هنا يا جنجونه…", subtitle: "" },
+    { id: "moment-2", title: "✦ ضحكتك يا مغوليه", text: "اكتب تاني ذكرى هنا يا هولي…", subtitle: "" },
+    { id: "moment-3", title: "✦ أحلى لحظة معاكِ", text: "اكتب تالت ذكرى هنا…", subtitle: "" },
+    { id: "moment-4", title: "✦ حاجة مجنونة عملناها", text: "اكتب رابع ذكرى هنا يا مغوليه…", subtitle: "" },
+    { id: "moment-5", title: "✦ ليه بحبك", text: "اكتب خامس ذكرى هنا يا جنجونه…", subtitle: "" },
   ],
 
   heart: {
-    title: "Every particle is a piece of how I feel",
-    subtitle: "Touch the heart…",
+    title: "كل نقطة نور هنا يا هولي هي حتة من اللي حاسس بيه",
+    subtitle: "المسي القلب يا جنجونه…",
   },
 
   finalLetter: {
-    envelopeTitle: "For You ♡",
-    letterTitle: "My Dearest…",
+    envelopeTitle: "ليكِ يا جنجونه ♡",
+    letterTitle: "يا أغلى إنسانة…",
     paragraphs: [
-      "Write your first paragraph here…",
-      "Write your second paragraph here…",
-      "Write your third paragraph here…",
-      "Write your closing paragraph here…",
+      "اكتب الفقرة الأولى هنا…",
+      "اكتب الفقرة التانية هنا…",
+      "اكتب الفقرة التالتة هنا…",
+      "اكتب الفقرة الأخيرة هنا…",
     ],
-    signature: "— With all my love",
+    signature: "— اللي بيحبك من كل قلبه",
     date: "",
   },
 
   closing: {
-    message: "This world will always be here for you ♡",
-    restartText: "Experience again",
+    message: "العالم ده هيفضل موجود عشانك يا مغوليه ♡",
+    restartText: "جربي تاني ♡",
   },
 };
