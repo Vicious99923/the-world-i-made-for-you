@@ -12,6 +12,19 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
   const { play } = useSound();
   const animRef = useRef(0);
   const timeRef = useRef(0);
+  const timersRef = useRef<number[]>([]);
+
+  const addTimer = (id: number) => {
+    timersRef.current.push(id);
+    return id;
+  };
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(t => clearTimeout(t));
+      cancelAnimationFrame(animRef.current);
+    };
+  }, []);
 
   // Background particles
   useEffect(() => {
@@ -68,16 +81,17 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
   useEffect(() => {
     if (phase !== 'letter' || showAll) return;
     if (visibleParagraphs >= content.finalLetter.paragraphs.length + 2) return;
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setVisibleParagraphs(prev => prev + 1);
     }, 1200);
+    addTimer(timer);
     return () => clearTimeout(timer);
   }, [phase, visibleParagraphs, showAll]);
 
   const openEnvelope = useCallback(() => {
     play('envelope');
     setPhase('opening');
-    setTimeout(() => setPhase('letter'), 1500);
+    addTimer(window.setTimeout(() => setPhase('letter'), 1400));
   }, [play]);
 
   const handleShowAll = useCallback(() => {
@@ -91,16 +105,19 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />
 
-      {/* Envelope */}
+      {/* Envelope - Perfectly Centered in Viewport */}
       {phase === 'envelope' && (
         <div onClick={openEnvelope} style={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-          cursor: 'pointer', animation: 'fadeInUp 1.5s ease forwards', textAlign: 'center',
-          width: '90%', maxWidth: '340px',
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', animation: 'fadeInUp 1.2s ease forwards',
+          textAlign: 'center', padding: '1rem',
+          zIndex: 10,
         }}>
           {/* Envelope body */}
           <div style={{
-            width: 'clamp(220px, 75vw, 320px)', height: 'clamp(140px, 45vw, 200px)',
+            width: 'min(300px, 78vw)', height: 'min(190px, 50vw)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b, #b8845a)',
             borderRadius: '8px', position: 'relative', margin: '0 auto',
             boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,149,107,0.15)',
@@ -109,13 +126,13 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           }}>
             {/* Flap */}
             <div style={{
-              position: 'absolute', top: '-1px', left: '0', right: '0',
+              position: 'absolute', top: '-1px', left: 0, right: 0,
               height: '50%', overflow: 'hidden',
             }}>
               <div style={{
                 width: '141%', height: '141%', background: 'linear-gradient(135deg, #c9956b, #b8845a)',
                 transform: 'rotate(45deg)', transformOrigin: 'top left',
-                position: 'absolute', top: '0', left: '0',
+                position: 'absolute', top: 0, left: 0,
                 borderRadius: '4px',
               }} />
             </div>
@@ -129,13 +146,15 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             }}>♡</div>
           </div>
           <p style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(0.95rem, 3vw, 1.25rem)',
-            color: '#f5e6d3', marginTop: '1.5rem', fontStyle: 'italic',
+            fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1rem, 3.5vw, 1.3rem)',
+            color: '#f5e6d3', marginTop: '1.8rem', fontStyle: 'italic',
             animation: 'pulse 3s ease-in-out infinite', letterSpacing: '0.05em',
+            textAlign: 'center',
           }}>{content.finalLetter.envelopeTitle}</p>
           <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: '0.7rem',
-            color: 'rgba(245,230,211,0.5)', marginTop: '0.8rem', letterSpacing: '0.15em',
+            fontFamily: "'Inter', sans-serif", fontSize: '0.72rem',
+            color: 'rgba(245,230,211,0.55)', marginTop: '0.6rem', letterSpacing: '0.12em',
+            textAlign: 'center',
           }}>اضغطي عشان تفتحي 💌</p>
         </div>
       )}
@@ -144,19 +163,19 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
       {phase === 'opening' && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          animation: 'fadeIn 0.5s ease',
+          animation: 'fadeIn 0.4s ease',
         }}>
           <div style={{
-            width: 'clamp(220px, 75vw, 320px)', height: 'clamp(140px, 45vw, 200px)',
+            width: 'min(300px, 78vw)', height: 'min(190px, 50vw)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b)',
             borderRadius: '8px', position: 'relative',
-            animation: 'envelopeOpen 1.5s ease forwards',
+            animation: 'envelopeOpen 1.4s ease forwards',
           }} />
           <style>{`
             @keyframes envelopeOpen {
               0% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(1.1) rotateX(20deg); opacity: 0.8; }
-              100% { transform: scale(0.5) translateY(-100px); opacity: 0; }
+              50% { transform: scale(1.08) rotateX(20deg); opacity: 0.8; }
+              100% { transform: scale(0.5) translateY(-80px); opacity: 0; }
             }
           `}</style>
         </div>
@@ -249,7 +268,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             )}
           </div>
 
-          {/* Closing section - placed in flow so it never overlaps the letter! */}
+          {/* Closing section */}
           {visibleParagraphs >= totalItems && (
             <div style={{
               margin: '2.5rem 0 3rem 0',
@@ -259,7 +278,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
               <p style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
                 fontSize: 'clamp(0.9rem, 2.5vw, 1.15rem)', color: 'rgba(245,230,211,0.7)',
-                fontStyle: 'italic', marginBottom: '1.2rem',
+                fontStyle: 'italic', marginBottom: '1.2rem', textAlign: 'center',
               }}>
                 {content.closing.message}
               </p>
@@ -280,7 +299,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
       {phase === 'closing' && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column', animation: 'fadeIn 2s ease forwards',
+          flexDirection: 'column', animation: 'fadeIn 2s ease forwards', padding: '1rem',
         }}>
           <p style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",

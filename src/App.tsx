@@ -24,21 +24,24 @@ function Experience() {
     return () => clearTimeout(timer);
   }, []);
 
-  const goToNextScene = useCallback(() => {
-    if (transitioning || currentScene >= SCENE_COUNT - 1) return;
-    setTransitioning(true);
-    setTimeout(() => {
-      setCurrentScene(prev => prev + 1);
-      setTransitioning(false);
-    }, 800);
-  }, [currentScene, transitioning]);
+  const advanceFromScene = useCallback((fromIndex: number) => {
+    setCurrentScene(curr => {
+      if (curr !== fromIndex) return curr; // Prevent race conditions / stale timeouts
+      setTransitioning(true);
+      setTimeout(() => {
+        setCurrentScene(c => (c === fromIndex ? c + 1 : c));
+        setTransitioning(false);
+      }, 700);
+      return curr;
+    });
+  }, []);
 
   const restartExperience = useCallback(() => {
     setTransitioning(true);
     setTimeout(() => {
       setCurrentScene(0);
       setTransitioning(false);
-    }, 800);
+    }, 700);
   }, []);
 
   // Start music on first interaction after loading
@@ -72,15 +75,15 @@ function Experience() {
       {transitioning && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 100,
-          background: '#000', animation: 'fadeIn 0.4s ease forwards',
+          background: '#000', animation: 'fadeIn 0.35s ease forwards',
           pointerEvents: 'all',
         }} />
       )}
-      <div style={{ width: '100%', height: '100%' }}>
-        {currentScene === 0 && <UnknownUniverse onComplete={goToNextScene} isActive={true} />}
-        {currentScene === 1 && <WorldThatBlooms onComplete={goToNextScene} isActive={true} />}
-        {currentScene === 2 && <LittleThings onComplete={goToNextScene} isActive={true} />}
-        {currentScene === 3 && <HeartOfLight onComplete={goToNextScene} isActive={true} />}
+      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        {currentScene === 0 && <UnknownUniverse onComplete={() => advanceFromScene(0)} isActive={true} />}
+        {currentScene === 1 && <WorldThatBlooms onComplete={() => advanceFromScene(1)} isActive={true} />}
+        {currentScene === 2 && <LittleThings onComplete={() => advanceFromScene(2)} isActive={true} />}
+        {currentScene === 3 && <HeartOfLight onComplete={() => advanceFromScene(3)} isActive={true} />}
         {currentScene === 4 && <FinalLetter onRestart={restartExperience} isActive={true} />}
       </div>
       <ProgressIndicator current={currentScene} total={SCENE_COUNT} />

@@ -34,7 +34,20 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
   const clickCountRef = useRef(0);
   const particlesRef = useRef<Particle[]>([]);
   const initRef = useRef(false);
+  const timersRef = useRef<number[]>([]);
   const COLORS = ['#be185d','#db2777','#ec4899','#f472b6','#fda4af','#ffffff'];
+
+  const addTimer = (id: number) => {
+    timersRef.current.push(id);
+    return id;
+  };
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(t => clearTimeout(t));
+      cancelAnimationFrame(animRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if(initRef.current)return; initRef.current=true;
@@ -60,8 +73,8 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
       });
     }
     particlesRef.current=parts;
-    setTimeout(()=>setShowText(true),1200);
-    setTimeout(()=>setCanProceed(true),8000);
+    addTimer(window.setTimeout(()=>setShowText(true),1200));
+    addTimer(window.setTimeout(()=>setCanProceed(true),8000));
   }, []);
 
   useEffect(() => {
@@ -118,13 +131,22 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
     return()=>{cancelAnimationFrame(animRef.current);window.removeEventListener('resize',resize);};
   }, []);
 
+  const triggerComplete = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    onComplete();
+  }, [onComplete]);
+
   const handleClick = useCallback(()=>{
     clickCountRef.current++; play('heartbeat');
     if(clickCountRef.current>=3 && !completedRef.current){
-      completedRef.current=true;
       setCanProceed(true);
-      // Auto-advance after 2s
-      setTimeout(()=>onComplete(),2000);
+      addTimer(window.setTimeout(()=>{
+        if (!completedRef.current) {
+          completedRef.current = true;
+          onComplete();
+        }
+      }, 2200));
     }
   },[play,onComplete]);
 
@@ -133,24 +155,45 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
       <canvas ref={canvasRef} onClick={handleClick}
         onTouchEnd={(e)=>{e.preventDefault(); handleClick();}}
         style={{position:'absolute',inset:0,cursor:'pointer'}} />
+
       {showText && (
-        <div style={{position:'absolute',top:'clamp(6%, 8vh, 10%)',left:'50%',transform:'translateX(-50%)',
-          textAlign:'center',pointerEvents:'none',animation:'fadeInUp 2s ease forwards',
-          width:'90%',maxWidth:'500px'}}>
-          <h2 style={{fontFamily:"'Playfair Display',Georgia,serif",
-            fontSize:'clamp(1.1rem,3.5vw,1.8rem)',fontWeight:400,color:'#fce7f3',
-            lineHeight:1.5,marginBottom:'0.7rem'}}>{content.heart.title}</h2>
-          <p style={{fontFamily:"'Cormorant Garamond',Georgia,serif",
-            fontSize:'clamp(0.8rem,2vw,1rem)',color:'rgba(253,164,175,0.7)',fontStyle:'italic',
-            animation:'pulse 3s ease-in-out infinite'}}>{content.heart.subtitle}</p>
+        <div style={{
+          position: 'absolute', top: 'clamp(6%, 8vh, 10%)', left: 0, width: '100%',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          pointerEvents: 'none', animation: 'fadeInUp 2s ease forwards',
+          zIndex: 5, padding: '0 1rem',
+        }}>
+          <div style={{ width: '92%', maxWidth: '520px', textAlign: 'center', direction: 'rtl' }}>
+            <h2 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(1.15rem, 3.8vw, 1.85rem)', fontWeight: 400, color: '#fce7f3',
+              lineHeight: 1.5, marginBottom: '0.6rem', textAlign: 'center',
+            }}>
+              {content.heart.title}
+            </h2>
+            <p style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(0.85rem, 2.4vw, 1.05rem)', color: 'rgba(253,164,175,0.75)',
+              fontStyle: 'italic', animation: 'pulse 3s ease-in-out infinite',
+              textAlign: 'center',
+            }}>
+              {content.heart.subtitle}
+            </p>
+          </div>
         </div>
       )}
-      <div style={{position:'absolute',bottom:'2.5rem',left:'50%',transform:'translateX(-50%)',textAlign:'center',zIndex:10}}>
+
+      <div style={{
+        position: 'absolute', bottom: 'clamp(1.8rem, 4vh, 2.8rem)', left: 0, width: '100%',
+        display: 'flex', justifyContent: 'center', textAlign: 'center', zIndex: 10,
+        pointerEvents: 'none',
+      }}>
         {canProceed && (
-          <button onClick={onComplete} style={{
-            background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',
-            color:'rgba(255,255,255,0.7)',fontFamily:"'Inter',sans-serif",fontSize:'0.75rem',
-            padding:'0.5rem 1.5rem',borderRadius:'20px',cursor:'pointer',transition:'all 0.3s ease',
+          <button onClick={triggerComplete} style={{
+            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
+            color: 'rgba(255,255,255,0.85)', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem',
+            padding: '0.5rem 1.6rem', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.3s ease',
+            pointerEvents: 'auto',
           }}>كملي للرسالة →</button>
         )}
       </div>

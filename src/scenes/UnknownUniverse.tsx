@@ -16,6 +16,21 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
   const starsRef = useRef<{x:number;y:number;z:number;size:number;brightness:number;twinkleSpeed:number;phase:number}[]>([]);
   const orbParticlesRef = useRef<{angle:number;dist:number;speed:number;size:number}[]>([]);
   const initRef = useRef(false);
+  const hasCompletedRef = useRef(false);
+  const timersRef = useRef<number[]>([]);
+
+  const addTimer = (id: number) => {
+    timersRef.current.push(id);
+    return id;
+  };
+
+  useEffect(() => {
+    return () => {
+      // Clear all timers on unmount
+      timersRef.current.forEach(t => clearTimeout(t));
+      cancelAnimationFrame(animRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (initRef.current) return;
@@ -30,7 +45,7 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
       angle: Math.random() * Math.PI * 2, dist: Math.random() * 35 + 15,
       speed: (Math.random() - 0.5) * 0.02, size: Math.random() * 2 + 1,
     }));
-    setTimeout(() => setShowText(true), 800);
+    addTimer(window.setTimeout(() => setShowText(true), 800));
   }, []);
 
   useEffect(() => {
@@ -118,15 +133,26 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
   }, [orbGlowing]);
 
   const handleOrbClick = useCallback(() => {
-    if (orbClicked) return;
+    if (orbClicked || hasCompletedRef.current) return;
     setOrbGlowing(true);
     play('sparkle');
-    setTimeout(() => {
+    addTimer(window.setTimeout(() => {
       setOrbClicked(true);
       play('transition');
-      setTimeout(() => onComplete(), 1500);
-    }, 800);
+      addTimer(window.setTimeout(() => {
+        if (!hasCompletedRef.current) {
+          hasCompletedRef.current = true;
+          onComplete();
+        }
+      }, 1200));
+    }, 700));
   }, [orbClicked, onComplete, play]);
+
+  const triggerSkip = useCallback(() => {
+    if (hasCompletedRef.current) return;
+    hasCompletedRef.current = true;
+    onComplete();
+  }, [onComplete]);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -138,6 +164,7 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
   }, [handleOrbClick]);
 
   const handleCanvasTouch = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     const touch = e.changedTouches[0];
     if (!rect || !touch) return;
@@ -164,32 +191,47 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
         style={{ position:'absolute', inset:0, cursor:'pointer' }} />
 
       {showText && !orbClicked && (
-        <div style={{ position:'absolute', top:'clamp(18%, 24vh, 28%)', left:'50%', transform:'translateX(-50%)',
-          textAlign:'center', pointerEvents:'none', animation:'fadeInUp 2s ease forwards',
-          width:'90%', maxWidth:'500px' }}>
-          <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",
-            fontSize:'clamp(1.2rem,4vw,2.2rem)', fontWeight:400, color:'#e2e8f0',
-            letterSpacing:'0.06em', lineHeight:1.4, marginBottom:'1rem' }}>
-            {content.opening.title}
-          </h1>
-          <p style={{ fontFamily:"'Cormorant Garamond',Georgia,serif",
-            fontSize:'clamp(0.85rem,2vw,1.1rem)', color:'rgba(196,181,253,0.7)',
-            fontStyle:'italic', animation:'pulse 3s ease-in-out infinite' }}>
-            {content.opening.subtitle}
-          </p>
+        <div style={{
+          position: 'absolute', top: 'clamp(14%, 18vh, 24%)', left: 0, width: '100%',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          pointerEvents: 'none', animation: 'fadeInUp 1.8s ease forwards',
+          zIndex: 5, padding: '0 1rem',
+        }}>
+          <div style={{ width: '92%', maxWidth: '520px', textAlign: 'center', direction: 'rtl' }}>
+            <h1 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(1.25rem, 4.5vw, 2.2rem)', fontWeight: 400, color: '#e2e8f0',
+              letterSpacing: '0.04em', lineHeight: 1.45, marginBottom: '0.9rem',
+              textAlign: 'center',
+            }}>
+              {content.opening.title}
+            </h1>
+            <p style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(0.9rem, 2.8vw, 1.15rem)', color: 'rgba(196,181,253,0.75)',
+              fontStyle: 'italic', animation: 'pulse 3s ease-in-out infinite',
+              textAlign: 'center',
+            }}>
+              {content.opening.subtitle}
+            </p>
+          </div>
         </div>
       )}
 
       {!orbClicked && (
-        <button onClick={() => onComplete()} style={{
-          position:'absolute', bottom:'2rem', left:'50%', transform:'translateX(-50%)',
-          background:'none', border:'none', color:'rgba(255,255,255,0.3)',
-          fontFamily:"'Inter',sans-serif", fontSize:'0.7rem', letterSpacing:'0.12em',
-          cursor:'pointer', padding:'0.5rem 1rem', transition:'color 0.3s ease',
-        }}
-        onMouseEnter={e=>{e.currentTarget.style.color='rgba(255,255,255,0.6)'}}
-        onMouseLeave={e=>{e.currentTarget.style.color='rgba(255,255,255,0.3)'}}
-        >تخطي ←</button>
+        <div style={{
+          position: 'absolute', bottom: 'clamp(1.5rem, 4vh, 2.5rem)', left: 0, width: '100%',
+          display: 'flex', justifyContent: 'center', zIndex: 10,
+        }}>
+          <button onClick={triggerSkip} style={{
+            background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)',
+            fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', letterSpacing: '0.12em',
+            cursor: 'pointer', padding: '0.6rem 1.2rem', transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.color='rgba(255,255,255,0.7)'}}
+          onMouseLeave={e=>{e.currentTarget.style.color='rgba(255,255,255,0.35)'}}
+          >تخطي ←</button>
+        </div>
       )}
     </div>
   );

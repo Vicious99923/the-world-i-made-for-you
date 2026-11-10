@@ -19,8 +19,22 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
   const orbsRef = useRef<Orb[]>([]);
   const timeRef = useRef(0);
   const initRef = useRef(false);
+  const openedAtRef = useRef(0);
+  const timersRef = useRef<number[]>([]);
 
-  useEffect(() => { setTimeout(() => setCanProceed(true), 10000); }, []);
+  const addTimer = (id: number) => {
+    timersRef.current.push(id);
+    return id;
+  };
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(t => clearTimeout(t));
+      cancelAnimationFrame(animRef.current);
+    };
+  }, []);
+
+  useEffect(() => { addTimer(window.setTimeout(() => setCanProceed(true), 10000)); }, []);
 
   useEffect(() => {
     if(initRef.current) return; initRef.current=true;
@@ -99,6 +113,12 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
     return()=>{cancelAnimationFrame(animRef.current);window.removeEventListener('resize',resize);};
   }, []);
 
+  const triggerComplete = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    onComplete();
+  }, [onComplete]);
+
   const handleOrbClick = useCallback((cx:number,cy:number)=>{
     if(activeOrb) return;
     const isMobile = window.innerWidth < 768;
@@ -110,66 +130,129 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
           setDiscoveredCount(prev=>{
             const n=prev+1;
             if(n>=content.moments.length && !completedRef.current){
-              completedRef.current=true;
               setCanProceed(true);
-              // Auto-advance after 2s
-              setTimeout(()=>onComplete(),2000);
+              addTimer(window.setTimeout(()=>{
+                if (!completedRef.current) {
+                  completedRef.current = true;
+                  onComplete();
+                }
+              }, 2200));
             }
             return n;
           });
         }
-        setActiveOrb(orb.id); play('reveal'); break;
+        openedAtRef.current = Date.now();
+        setActiveOrb(orb.id);
+        play('reveal');
+        break;
       }
     }
   },[activeOrb,play,onComplete]);
 
-  const activeMoment=content.moments.find(m=>m.id===activeOrb);
+  const activeMoment = content.moments.find(m => m.id === activeOrb);
 
   return (
     <div style={{width:'100%',height:'100%',position:'relative'}}>
       <canvas ref={canvasRef}
         onClick={e=>{
+          if(activeOrb) return;
           const rect = canvasRef.current?.getBoundingClientRect();
           if(!rect) return;
           handleOrbClick(e.clientX - rect.left, e.clientY - rect.top);
         }}
         onTouchEnd={e=>{
+          if(activeOrb) return;
+          e.preventDefault();
           const rect = canvasRef.current?.getBoundingClientRect();
           if(!rect) return;
           const t=e.changedTouches[0];
           if(t) handleOrbClick(t.clientX - rect.left, t.clientY - rect.top);
         }}
         style={{position:'absolute',inset:0,cursor:'pointer'}} />
+
+      {/* Centered Modal Popup */}
       {activeMoment && (
-        <div onClick={()=>setActiveOrb(null)} style={{
-          position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',
-          background:'rgba(0,0,0,0.5)',zIndex:20,cursor:'pointer',animation:'fadeIn 0.3s ease',
-          padding:'1rem',
-        }}>
-          <div style={{maxWidth:'460px',width:'92%',maxHeight:'80vh',overflowY:'auto',
-            padding:'clamp(1.5rem, 5vw, 2.5rem)',
-            background:'rgba(255,255,255,0.08)',backdropFilter:'blur(25px)',WebkitBackdropFilter:'blur(25px)',
-            borderRadius:'20px',border:'1px solid rgba(255,255,255,0.15)',
-            animation:'fadeInUp 0.5s ease forwards',textAlign:'center',
-            boxShadow:'0 20px 50px rgba(0,0,0,0.5)',direction:'rtl'}}>
-            <h3 style={{fontFamily:"'Playfair Display',Georgia,serif",
-              fontSize:'clamp(1.1rem,4vw,1.6rem)',fontWeight:600,color:'#fef3c7',marginBottom:'0.8rem'}}>
-              {activeMoment.title}</h3>
-            <p style={{fontFamily:"'Cormorant Garamond',Georgia,serif",
-              fontSize:'clamp(0.95rem,3.2vw,1.2rem)',color:'rgba(255,255,255,0.9)',lineHeight:1.7}}>
-              {activeMoment.text}</p>
-            <p style={{fontSize:'0.7rem',color:'rgba(255,255,255,0.4)',marginTop:'1.5rem'}}>اضغطي عشان تقفلي</p>
+        <div
+          onClick={() => {
+            // Prevent synthetic double-tap click from instantly closing modal
+            if (Date.now() - openedAtRef.current < 400) return;
+            setActiveOrb(null);
+          }}
+          style={{
+            position:'absolute', inset:0,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            background:'rgba(0,0,0,0.65)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)',
+            zIndex:50, cursor:'pointer', animation:'fadeIn 0.25s ease',
+            padding:'1rem',
+          }}>
+          <div
+            onClick={e => e.stopPropagation()}
+            onTouchEnd={e => e.stopPropagation()}
+            style={{
+              maxWidth:'460px', width:'92%', maxHeight:'82vh', overflowY:'auto',
+              padding:'clamp(1.5rem, 5vw, 2.5rem)',
+              background:'linear-gradient(145deg, rgba(35, 20, 50, 0.92), rgba(20, 10, 30, 0.95))',
+              backdropFilter:'blur(25px)', WebkitBackdropFilter:'blur(25px)',
+              borderRadius:'24px', border:'1px solid rgba(255,255,255,0.18)',
+              animation:'fadeInUp 0.35s ease forwards', textAlign:'center',
+              boxShadow:'0 25px 60px rgba(0,0,0,0.65), 0 0 30px rgba(167,139,250,0.15)',
+              direction:'rtl', position:'relative',
+            }}>
+            <button
+              onClick={() => setActiveOrb(null)}
+              style={{
+                position:'absolute', top:'1rem', left:'1rem',
+                background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'50%',
+                width:'32px', height:'32px', color:'#fff', cursor:'pointer',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontSize:'0.9rem',
+              }}>✕</button>
+
+            <h3 style={{
+              fontFamily:"'Playfair Display',Georgia,serif",
+              fontSize:'clamp(1.15rem, 4.2vw, 1.6rem)', fontWeight:600, color:'#fef3c7',
+              marginBottom:'1rem', marginTop:'0.5rem', textAlign:'center',
+            }}>
+              {activeMoment.title}
+            </h3>
+            <p style={{
+              fontFamily:"'Inter',sans-serif",
+              fontSize:'clamp(0.95rem, 3.4vw, 1.2rem)', color:'rgba(255,255,255,0.92)',
+              lineHeight:1.75, textAlign:'center',
+            }}>
+              {activeMoment.text}
+            </p>
+            <button
+              onClick={() => setActiveOrb(null)}
+              style={{
+                marginTop:'1.6rem',
+                background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)',
+                color:'rgba(255,255,255,0.8)', padding:'0.45rem 1.4rem',
+                borderRadius:'20px', fontSize:'0.75rem', cursor:'pointer',
+                fontFamily:"'Inter',sans-serif",
+              }}>
+              إغلاق ♡
+            </button>
           </div>
         </div>
       )}
-      <div style={{position:'absolute',bottom:'2.5rem',left:'50%',transform:'translateX(-50%)',textAlign:'center',zIndex:5}}>
-        <p style={{fontFamily:"'Inter',sans-serif",fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',
-          pointerEvents:'none'}}>{discoveredCount}/{content.moments.length} اكتشفتي 💫</p>
+
+      {/* Bottom controls */}
+      <div style={{
+        position:'absolute', bottom:'clamp(1.8rem, 4vh, 2.8rem)', left:0, width:'100%',
+        display:'flex', flexDirection:'column', alignItems:'center',
+        textAlign:'center', zIndex:5, pointerEvents:'none',
+      }}>
+        <p style={{
+          fontFamily:"'Inter',sans-serif", fontSize:'0.72rem', color:'rgba(255,255,255,0.45)',
+          pointerEvents:'none',
+        }}>{discoveredCount}/{content.moments.length} اكتشفتي 💫</p>
         {canProceed && (
-          <button onClick={onComplete} style={{
-            marginTop:'0.8rem',background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',
-            color:'rgba(255,255,255,0.7)',fontFamily:"'Inter',sans-serif",fontSize:'0.75rem',
-            padding:'0.5rem 1.5rem',borderRadius:'20px',cursor:'pointer',transition:'all 0.3s ease',
+          <button onClick={triggerComplete} style={{
+            marginTop:'0.8rem', background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)',
+            color:'rgba(255,255,255,0.85)', fontFamily:"'Inter',sans-serif", fontSize:'0.78rem',
+            padding:'0.5rem 1.6rem', borderRadius:'20px', cursor:'pointer', transition:'all 0.3s ease',
+            pointerEvents:'auto',
           }}>كملي →</button>
         )}
       </div>
