@@ -6,7 +6,8 @@ interface Props { onRestart: () => void; isActive: boolean; }
 
 export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [phase, setPhase] = useState<'envelope' | 'opening' | 'letter' | 'closing'>('envelope');
+  const [phase, setPhase] = useState<'envelope' | 'opening' | 'letter'>('envelope');
+  const [showClosing, setShowClosing] = useState(false);
   const { play } = useSound();
   const animRef = useRef(0);
   const timeRef = useRef(0);
@@ -24,7 +25,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
     };
   }, []);
 
-  // Background particles
+  // Background floating ember particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -78,14 +79,19 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
   const openEnvelope = useCallback(() => {
     play('envelope');
     setPhase('opening');
-    addTimer(window.setTimeout(() => setPhase('letter'), 1400));
+    addTimer(window.setTimeout(() => setPhase('letter'), 1200));
+  }, [play]);
+
+  const handleFinishReading = useCallback(() => {
+    play('sparkle');
+    setShowClosing(true);
   }, [play]);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0 }} />
 
-      {/* Envelope - Perfectly Centered in Viewport */}
+      {/* Envelope Phase */}
       {phase === 'envelope' && (
         <div onClick={openEnvelope} style={{
           position: 'absolute', inset: 0,
@@ -139,17 +145,17 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
         </div>
       )}
 
-      {/* Opening animation */}
+      {/* Opening Animation Phase */}
       {phase === 'opening' && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          animation: 'fadeIn 0.4s ease',
+          animation: 'fadeIn 0.3s ease',
         }}>
           <div style={{
             width: 'min(300px, 78vw)', height: 'min(190px, 50vw)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b)',
             borderRadius: '10px', position: 'relative',
-            animation: 'envelopeOpen 1.4s ease forwards',
+            animation: 'envelopeOpen 1.2s ease forwards',
           }} />
           <style>{`
             @keyframes envelopeOpen {
@@ -161,33 +167,32 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
         </div>
       )}
 
-      {/* Letter on Authentic Notebook Paper (ورقة كشكول مسطر) */}
+      {/* Letter on Authentic Notebook Paper (ورقة كشكول مسطر كاملة وبدون قص) */}
       {phase === 'letter' && (
         <div className="scrollable" style={{
           position: 'absolute', inset: 0,
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           overflowY: 'auto', WebkitOverflowScrolling: 'touch',
           padding: 'clamp(1.5rem, 4vh, 2.8rem) clamp(0.75rem, 3vw, 1.5rem)',
-          animation: 'fadeIn 1.2s ease forwards',
+          animation: 'fadeIn 1s ease forwards',
         }}>
           <div style={{
             maxWidth: '560px', width: '100%',
             backgroundColor: '#fffdf9',
             /* Authentic school notebook styling:
                1. Red margin line on the right for Arabic (margin at 45px)
-               2. Blue horizontal ruled lines repeating every 36px
+               2. Blue horizontal ruled lines repeating continuously
             */
             backgroundImage: `
               linear-gradient(90deg, transparent calc(100% - 46px), rgba(244, 63, 94, 0.35) calc(100% - 46px), rgba(244, 63, 94, 0.35) calc(100% - 44px), transparent calc(100% - 44px)),
-              linear-gradient(rgba(147, 197, 253, 0.3) 1px, transparent 1px)
+              repeating-linear-gradient(transparent, transparent 35px, rgba(147, 197, 253, 0.32) 35px, rgba(147, 197, 253, 0.32) 36px)
             `,
-            backgroundSize: '100% 100%, 100% 36px',
-            backgroundPosition: '0 0, 0 20px',
             borderRadius: '10px',
             padding: 'clamp(2rem, 6vw, 3rem) clamp(1.4rem, 5vw, 2.8rem)',
-            boxShadow: '0 25px 70px rgba(0,0,0,0.6), inset 0 0 50px rgba(230,215,190,0.3)',
+            boxShadow: '0 25px 70px rgba(0,0,0,0.65), inset 0 0 50px rgba(230,215,190,0.3)',
             border: '1px solid #e7dfd5',
-            position: 'relative', minHeight: '400px',
+            position: 'relative',
+            height: 'auto',
             direction: 'rtl', textAlign: 'right',
           }}>
             {/* Top spiral binder hole punches decoration */}
@@ -214,26 +219,26 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
               {content.finalLetter.letterTitle}
             </h2>
 
-            {/* Paragraphs in ink handwriting */}
+            {/* Paragraphs in ink handwriting - all clearly displayed */}
             {content.finalLetter.paragraphs.map((para, i) => (
               <p key={i} style={{
                 fontFamily: "'SaleemQuran', serif",
                 fontSize: 'clamp(1.2rem, 4.2vw, 1.55rem)',
                 color: '#1e1b4b', lineHeight: '36px', marginBottom: '1.6rem',
-                animation: 'fadeInUp 1s ease forwards',
+                animation: 'fadeInUp 0.8s ease forwards',
               }}>
                 {para}
               </p>
             ))}
 
-            {/* Signature & Date clearly placed at the bottom of the notebook paper */}
+            {/* Signature & Date clearly placed inside at the end of the notebook paper */}
             <div style={{
               marginTop: '2.5rem',
               paddingTop: '1rem',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
-              borderTop: '1px dashed rgba(30, 27, 75, 0.15)',
+              borderTop: '1px dashed rgba(30, 27, 75, 0.18)',
             }}>
               {content.finalLetter.signature && (
                 <p style={{
@@ -255,55 +260,51 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
                 </p>
               )}
             </div>
+
+            {/* Manual button to indicate finished reading - NO automatic jumps */}
+            {!showClosing && (
+              <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                <button
+                  onClick={handleFinishReading}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(190,18,60,0.1), rgba(136,19,55,0.15))',
+                    border: '1px solid rgba(136,19,55,0.3)',
+                    color: '#881337', fontFamily: "'SaleemQuran', serif",
+                    fontSize: '1rem', padding: '0.6rem 2rem',
+                    borderRadius: '25px', cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}>
+                  خلصت قراءة يا أسامة ♡
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Closing section below the notebook paper */}
-          <div style={{
-            margin: '2.5rem 0 3.5rem 0',
-            textAlign: 'center', animation: 'fadeIn 1.5s ease forwards',
-            zIndex: 10,
-          }}>
-            <p style={{
-              fontFamily: "'SaleemQuran', serif",
-              fontSize: 'clamp(1.2rem, 3.8vw, 1.55rem)', color: 'rgba(245,230,211,0.92)',
-              marginBottom: '1.2rem', textAlign: 'center',
+          {/* Closing section below the notebook paper - ONLY appears when user clicks finished */}
+          {showClosing && (
+            <div style={{
+              margin: '2.5rem 0 3.5rem 0',
+              textAlign: 'center', animation: 'fadeInUp 1s ease forwards',
+              zIndex: 10,
             }}>
-              {content.closing.message}
-            </p>
-            <button onClick={onRestart} style={{
-              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
-              color: 'rgba(255,255,255,0.9)', fontFamily: "'SaleemQuran', serif",
-              fontSize: '1rem', padding: '0.65rem 2rem',
-              borderRadius: '30px', cursor: 'pointer', backdropFilter: 'blur(10px)',
-              transition: 'all 0.3s ease',
-            }}>
-              {content.closing.restartText}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {phase === 'closing' && (
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column', animation: 'fadeIn 2s ease forwards', padding: '1rem',
-        }}>
-          <p style={{
-            fontFamily: "'SaleemQuran', serif",
-            fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', color: '#f5e6d3',
-            textAlign: 'center', maxWidth: '440px',
-          }}>
-            {content.closing.message}
-          </p>
-          <button onClick={onRestart} style={{
-            marginTop: '2rem', background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.8)',
-            fontFamily: "'SaleemQuran', serif", fontSize: '0.95rem',
-            padding: '0.7rem 2rem', borderRadius: '30px',
-            cursor: 'pointer', transition: 'all 0.3s ease',
-          }}>
-            {content.closing.restartText}
-          </button>
+              <p style={{
+                fontFamily: "'SaleemQuran', serif",
+                fontSize: 'clamp(1.2rem, 3.8vw, 1.55rem)', color: 'rgba(245,230,211,0.95)',
+                marginBottom: '1.2rem', textAlign: 'center',
+              }}>
+                {content.closing.message}
+              </p>
+              <button onClick={onRestart} style={{
+                background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)',
+                color: '#ffffff', fontFamily: "'SaleemQuran', serif",
+                fontSize: '1.05rem', padding: '0.65rem 2.2rem',
+                borderRadius: '30px', cursor: 'pointer', backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s ease', boxShadow: '0 8px 25px rgba(255,255,255,0.15)',
+              }}>
+                {content.closing.restartText}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
