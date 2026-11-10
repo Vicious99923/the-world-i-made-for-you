@@ -199,17 +199,17 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
         }}>
           <div style={{ width: '92%', maxWidth: '520px', textAlign: 'center', direction: 'rtl' }}>
             <h1 style={{
-              fontFamily: "'Aref Ruqaa', serif",
-              fontSize: 'clamp(1.4rem, 4.8vw, 2.3rem)', fontWeight: 700, color: '#e2e8f0',
-              letterSpacing: '0.02em', lineHeight: 1.5, marginBottom: '0.9rem',
+              fontFamily: "'SaleemQuran', serif",
+              fontSize: 'clamp(1.4rem, 4.8vw, 2.3rem)', fontWeight: 'normal', color: '#e2e8f0',
+              letterSpacing: '0.02em', lineHeight: 1.6, marginBottom: '0.9rem',
               textAlign: 'center',
             }}>
               {content.opening.title}
             </h1>
             <p style={{
-              fontFamily: "'Aref Ruqaa', serif",
-              fontSize: 'clamp(1rem, 3.2vw, 1.25rem)', color: 'rgba(196,181,253,0.85)',
-              fontStyle: 'normal', animation: 'pulse 3s ease-in-out infinite',
+              fontFamily: "'SaleemQuran', serif",
+              fontSize: 'clamp(1.05rem, 3.4vw, 1.35rem)', color: 'rgba(196,181,253,0.85)',
+              animation: 'pulse 3s ease-in-out infinite',
               textAlign: 'center',
             }}>
               {content.opening.subtitle}

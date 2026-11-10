@@ -146,14 +146,14 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             }}>♡</div>
           </div>
           <p style={{
-            fontFamily: "'Aref Ruqaa', serif", fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
-            color: '#f5e6d3', marginTop: '1.8rem', fontWeight: 700,
+            fontFamily: "'SaleemQuran', serif", fontSize: 'clamp(1.3rem, 4.2vw, 1.6rem)',
+            color: '#f5e6d3', marginTop: '1.8rem', fontWeight: 'normal',
             animation: 'pulse 3s ease-in-out infinite',
             textAlign: 'center',
           }}>{content.finalLetter.envelopeTitle}</p>
           <p style={{
-            fontFamily: "'Aref Ruqaa', serif", fontSize: '0.9rem',
-            color: 'rgba(245,230,211,0.65)', marginTop: '0.5rem',
+            fontFamily: "'SaleemQuran', serif", fontSize: '1rem',
+            color: 'rgba(245,230,211,0.7)', marginTop: '0.5rem',
             textAlign: 'center',
           }}>اضغطي عشان تفتحي الجواب 💌</p>
         </div>
@@ -225,10 +225,10 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
 
             {/* Letter title */}
             <h2 style={{
-              fontFamily: "'Aref Ruqaa', serif",
-              fontSize: 'clamp(1.5rem, 5.5vw, 2.3rem)',
+              fontFamily: "'SaleemQuran', serif",
+              fontSize: 'clamp(1.6rem, 5.8vw, 2.4rem)',
               color: '#1e1b4b', marginBottom: '1.8rem', marginTop: '0.8rem',
-              fontWeight: 700, animation: 'fadeInUp 1s ease forwards',
+              fontWeight: 'normal', animation: 'fadeInUp 1s ease forwards',
               textAlign: 'center',
             }}>
               {content.finalLetter.letterTitle}
@@ -237,9 +237,9 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Paragraphs in Ruq'ah ink handwriting */}
             {content.finalLetter.paragraphs.map((para, i) => (
               <p key={i} style={{
-                fontFamily: "'Aref Ruqaa', serif",
-                fontSize: 'clamp(1.15rem, 4vw, 1.45rem)',
-                color: '#1e1b4b', lineHeight: '34px', marginBottom: '1.6rem',
+                fontFamily: "'SaleemQuran', serif",
+                fontSize: 'clamp(1.2rem, 4.2vw, 1.55rem)',
+                color: '#1e1b4b', lineHeight: '36px', marginBottom: '1.6rem',
                 opacity: i < visibleParagraphs ? 1 : 0,
                 transform: i < visibleParagraphs ? 'translateY(0)' : 'translateY(12px)',
                 transition: 'opacity 1s ease, transform 1s ease',
@@ -251,10 +251,10 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Signature */}
             {content.finalLetter.signature && (
               <p style={{
-                fontFamily: "'Aref Ruqaa', serif",
-                fontSize: 'clamp(1.25rem, 4.5vw, 1.6rem)',
-                color: '#881337', marginTop: '2.5rem', fontWeight: 700,
-                lineHeight: '34px',
+                fontFamily: "'SaleemQuran', serif",
+                fontSize: 'clamp(1.3rem, 4.6vw, 1.7rem)',
+                color: '#881337', marginTop: '2.5rem', fontWeight: 'normal',
+                lineHeight: '36px',
                 opacity: visibleParagraphs > content.finalLetter.paragraphs.length ? 1 : 0,
                 transition: 'opacity 1s ease',
               }}>
@@ -265,8 +265,8 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Date */}
             {content.finalLetter.date && (
               <p style={{
-                fontFamily: "'Aref Ruqaa', serif", fontSize: '1rem',
-                color: 'rgba(30, 27, 75, 0.6)', marginTop: '0.6rem',
+                fontFamily: "'SaleemQuran', serif", fontSize: '1.05rem',
+                color: 'rgba(30, 27, 75, 0.65)', marginTop: '0.6rem',
                 opacity: visibleParagraphs > content.finalLetter.paragraphs.length + 1 ? 1 : 0,
                 transition: 'opacity 1s ease',
               }}>
@@ -279,7 +279,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
               <button onClick={handleShowAll} style={{
                 marginTop: '1.2rem',
                 background: 'none', border: 'none', color: 'rgba(30,27,75,0.45)',
-                fontFamily: "'Aref Ruqaa', serif", fontSize: '0.85rem',
+                fontFamily: "'SaleemQuran', serif", fontSize: '0.95rem',
                 cursor: 'pointer', display: 'block',
               }}>
                 عرض الرسالة كاملة ↓
@@ -295,16 +295,16 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
               zIndex: 10,
             }}>
               <p style={{
-                fontFamily: "'Aref Ruqaa', serif",
-                fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)', color: 'rgba(245,230,211,0.85)',
+                fontFamily: "'SaleemQuran', serif",
+                fontSize: 'clamp(1.2rem, 3.8vw, 1.5rem)', color: 'rgba(245,230,211,0.9)',
                 marginBottom: '1.2rem', textAlign: 'center',
               }}>
                 {content.closing.message}
               </p>
               <button onClick={onRestart} style={{
                 background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
-                color: 'rgba(255,255,255,0.9)', fontFamily: "'Aref Ruqaa', serif",
-                fontSize: '0.95rem', padding: '0.65rem 2rem',
+                color: 'rgba(255,255,255,0.9)', fontFamily: "'SaleemQuran', serif",
+                fontSize: '1rem', padding: '0.65rem 2rem',
                 borderRadius: '30px', cursor: 'pointer', backdropFilter: 'blur(10px)',
                 transition: 'all 0.3s ease',
               }}>

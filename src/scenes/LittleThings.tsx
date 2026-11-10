@@ -180,8 +180,8 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
             boxShadow:'0 10px 30px rgba(0,0,0,0.3)',
           }}>
             <p style={{
-              fontFamily:"'Aref Ruqaa', serif",
-              fontSize:'clamp(1.1rem, 3.8vw, 1.45rem)',
+              fontFamily:"'SaleemQuran', serif",
+              fontSize:'clamp(1.15rem, 4vw, 1.55rem)',
               color:'#fef3c7', direction:'rtl',
               letterSpacing:'0.02em',
             }}>
@@ -229,15 +229,15 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
               }}>✕</button>
 
             <h3 style={{
-              fontFamily:"'Aref Ruqaa', serif",
-              fontSize:'clamp(1.3rem, 4.8vw, 1.8rem)', fontWeight:700, color:'#fef3c7',
+              fontFamily:"'SaleemQuran', serif",
+              fontSize:'clamp(1.35rem, 5vw, 1.85rem)', fontWeight:'normal', color:'#fef3c7',
               marginBottom:'1rem', marginTop:'0.5rem', textAlign:'center',
             }}>
               {activeMoment.title}
             </h3>
             <p style={{
-              fontFamily:"'Aref Ruqaa', serif",
-              fontSize:'clamp(1.1rem, 3.8vw, 1.35rem)', color:'rgba(255,255,255,0.95)',
+              fontFamily:"'SaleemQuran', serif",
+              fontSize:'clamp(1.15rem, 4vw, 1.45rem)', color:'rgba(255,255,255,0.95)',
               lineHeight:1.8, textAlign:'center',
             }}>
               {activeMoment.text}
@@ -248,8 +248,8 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
                 marginTop:'1.6rem',
                 background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.25)',
                 color:'rgba(255,255,255,0.9)', padding:'0.45rem 1.6rem',
-                borderRadius:'20px', fontSize:'0.85rem', cursor:'pointer',
-                fontFamily:"'Aref Ruqaa', serif",
+                borderRadius:'20px', fontSize:'0.9rem', cursor:'pointer',
+                fontFamily:"'SaleemQuran', serif",
               }}>
               إغلاق ♡
             </button>
@@ -264,14 +264,14 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
         textAlign:'center', zIndex:5, pointerEvents:'none',
       }}>
         <p style={{
-          fontFamily:"'Aref Ruqaa', serif", fontSize:'0.85rem', color:'rgba(255,255,255,0.5)',
+          fontFamily:"'SaleemQuran', serif", fontSize:'0.95rem', color:'rgba(255,255,255,0.5)',
           pointerEvents:'none',
         }}>{discoveredCount}/{content.moments.length} شفتي 💫</p>
         {canProceed && (
           <button onClick={triggerComplete} style={{
             marginTop:'0.8rem', background:'linear-gradient(135deg, rgba(167,139,250,0.3), rgba(244,114,182,0.3))',
             border:'1px solid rgba(255,255,255,0.3)',
-            color:'#ffffff', fontFamily:"'Aref Ruqaa', serif", fontSize:'0.9rem',
+            color:'#ffffff', fontFamily:"'SaleemQuran', serif", fontSize:'0.95rem',
             padding:'0.55rem 1.8rem', borderRadius:'25px', cursor:'pointer', transition:'all 0.3s ease',
             pointerEvents:'auto', boxShadow:'0 8px 25px rgba(167,139,250,0.3)',
           }}>كملي للقلب يا هولي →</button>

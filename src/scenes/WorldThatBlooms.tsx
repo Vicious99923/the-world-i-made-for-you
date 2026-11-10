@@ -188,16 +188,16 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
         }}>
           <div style={{ width: '92%', maxWidth: '560px', textAlign: 'center', direction: 'rtl' }}>
             <h2 style={{
-              fontFamily: "'Aref Ruqaa', serif",
-              fontSize: 'clamp(1.3rem, 4.4vw, 2.1rem)', fontWeight: 700, color: '#fce7f3',
-              lineHeight: 1.55, marginBottom: '0.6rem', textAlign: 'center',
+              fontFamily: "'SaleemQuran', serif",
+              fontSize: 'clamp(1.4rem, 4.6vw, 2.2rem)', fontWeight: 'normal', color: '#fce7f3',
+              lineHeight: 1.6, marginBottom: '0.6rem', textAlign: 'center',
             }}>
               {content.garden.title}
             </h2>
             <p style={{
-              fontFamily: "'Aref Ruqaa', serif",
-              fontSize: 'clamp(0.95rem, 3vw, 1.2rem)', color: 'rgba(249,168,212,0.85)',
-              fontStyle: 'normal', textAlign: 'center',
+              fontFamily: "'SaleemQuran', serif",
+              fontSize: 'clamp(1rem, 3.2vw, 1.25rem)', color: 'rgba(249,168,212,0.85)',
+              textAlign: 'center',
             }}>
               {content.garden.subtitle}
             </p>
@@ -221,7 +221,7 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
           }} />
         </div>
         <p style={{
-          fontFamily: "'Aref Ruqaa', serif", fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)',
+          fontFamily: "'SaleemQuran', serif", fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)',
           marginTop: '0.5rem',
         }}>
           {bloomCount >= TARGET_BLOOMS ? 'جمال الورد كمل بيكي يا جنجونه 🌸' : 'اضغطي عشان تزهر 🌸'}
@@ -230,7 +230,7 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
           <button onClick={triggerComplete} style={{
             marginTop: '0.8rem', background: 'linear-gradient(135deg, rgba(244,114,182,0.35), rgba(232,121,249,0.35))',
             border: '1px solid rgba(255,255,255,0.3)',
-            color: '#ffffff', fontFamily: "'Aref Ruqaa', serif", fontSize: '0.9rem',
+            color: '#ffffff', fontFamily: "'SaleemQuran', serif", fontSize: '0.95rem',
             padding: '0.55rem 1.8rem', borderRadius: '25px', cursor: 'pointer', transition: 'all 0.3s ease',
             pointerEvents: 'auto', boxShadow: '0 8px 25px rgba(244,114,182,0.3)',
           }}>كملي للمفاجأة التانية →</button>
