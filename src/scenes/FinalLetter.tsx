@@ -39,7 +39,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
     };
     resize(); window.addEventListener('resize', resize);
 
-    const particles = Array.from({ length: 60 }, () => ({
+    const particles = Array.from({ length: 50 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       vx: (Math.random() - 0.5) * 0.3,
@@ -119,8 +119,8 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           <div style={{
             width: 'min(300px, 78vw)', height: 'min(190px, 50vw)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b, #b8845a)',
-            borderRadius: '8px', position: 'relative', margin: '0 auto',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,149,107,0.15)',
+            borderRadius: '10px', position: 'relative', margin: '0 auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(201,149,107,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease',
           }}>
@@ -136,26 +136,26 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
                 borderRadius: '4px',
               }} />
             </div>
-            {/* Seal */}
+            {/* Wax Seal */}
             <div style={{
-              width: '42px', height: '42px', borderRadius: '50%',
-              background: 'radial-gradient(circle, #a83262, #8b2252)',
+              width: '44px', height: '44px', borderRadius: '50%',
+              background: 'radial-gradient(circle, #be123c, #881337)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.2rem', color: '#f5e6d3', zIndex: 2,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+              fontSize: '1.3rem', color: '#f5e6d3', zIndex: 2,
+              boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
             }}>♡</div>
           </div>
           <p style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1rem, 3.5vw, 1.3rem)',
-            color: '#f5e6d3', marginTop: '1.8rem', fontStyle: 'italic',
-            animation: 'pulse 3s ease-in-out infinite', letterSpacing: '0.05em',
+            fontFamily: "'Aref Ruqaa', serif", fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
+            color: '#f5e6d3', marginTop: '1.8rem', fontWeight: 700,
+            animation: 'pulse 3s ease-in-out infinite',
             textAlign: 'center',
           }}>{content.finalLetter.envelopeTitle}</p>
           <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: '0.72rem',
-            color: 'rgba(245,230,211,0.55)', marginTop: '0.6rem', letterSpacing: '0.12em',
+            fontFamily: "'Aref Ruqaa', serif", fontSize: '0.9rem',
+            color: 'rgba(245,230,211,0.65)', marginTop: '0.5rem',
             textAlign: 'center',
-          }}>اضغطي عشان تفتحي 💌</p>
+          }}>اضغطي عشان تفتحي الجواب 💌</p>
         </div>
       )}
 
@@ -168,7 +168,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           <div style={{
             width: 'min(300px, 78vw)', height: 'min(190px, 50vw)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b)',
-            borderRadius: '8px', position: 'relative',
+            borderRadius: '10px', position: 'relative',
             animation: 'envelopeOpen 1.4s ease forwards',
           }} />
           <style>{`
@@ -181,7 +181,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
         </div>
       )}
 
-      {/* Letter */}
+      {/* Letter on Authentic Notebook Paper (ورقة كشكول مسطر) */}
       {phase === 'letter' && (
         <div className="scrollable" style={{
           position: 'absolute', inset: 0,
@@ -191,38 +191,57 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           animation: 'fadeIn 1.2s ease forwards',
         }}>
           <div style={{
-            maxWidth: '560px', width: '100%', background: '#faf8f5',
-            borderRadius: '8px', padding: 'clamp(1.5rem, 5vw, 3rem)',
-            boxShadow: '0 20px 80px rgba(0,0,0,0.5), 0 0 1px rgba(0,0,0,0.1)',
-            position: 'relative', minHeight: '350px',
+            maxWidth: '560px', width: '100%',
+            backgroundColor: '#fffdf9',
+            /* Authentic school notebook styling:
+               1. Red margin line on the right for Arabic (margin at 45px)
+               2. Blue horizontal ruled lines repeating every 34px
+            */
+            backgroundImage: `
+              linear-gradient(90deg, transparent calc(100% - 46px), rgba(244, 63, 94, 0.35) calc(100% - 46px), rgba(244, 63, 94, 0.35) calc(100% - 44px), transparent calc(100% - 44px)),
+              linear-gradient(rgba(147, 197, 253, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '100% 100%, 100% 34px',
+            backgroundPosition: '0 0, 0 20px',
+            borderRadius: '8px',
+            padding: 'clamp(2rem, 6vw, 3rem) clamp(1.2rem, 5vw, 2.5rem)',
+            boxShadow: '0 25px 70px rgba(0,0,0,0.6), inset 0 0 50px rgba(230,215,190,0.3)',
+            border: '1px solid #e7dfd5',
+            position: 'relative', minHeight: '400px',
             direction: 'rtl', textAlign: 'right',
           }}>
-            {/* Paper texture overlay */}
+            {/* Top spiral binder hole punches decoration */}
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: '8px',
-              background: 'repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.03) 28px, rgba(0,0,0,0.03) 29px)',
-              pointerEvents: 'none',
-            }} />
+              position: 'absolute', top: '10px', left: '20px', right: '20px',
+              display: 'flex', justifyContent: 'space-around', pointerEvents: 'none',
+            }}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} style={{
+                  width: '8px', height: '8px', borderRadius: '50%',
+                  backgroundColor: '#e2d9cd', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)',
+                }} />
+              ))}
+            </div>
 
             {/* Letter title */}
             <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.3rem, 5vw, 2rem)',
-              color: '#2c1810', marginBottom: '1.8rem', fontWeight: 600,
-              animation: 'fadeInUp 1s ease forwards',
+              fontFamily: "'Aref Ruqaa', serif",
+              fontSize: 'clamp(1.5rem, 5.5vw, 2.3rem)',
+              color: '#1e1b4b', marginBottom: '1.8rem', marginTop: '0.8rem',
+              fontWeight: 700, animation: 'fadeInUp 1s ease forwards',
               textAlign: 'center',
             }}>
               {content.finalLetter.letterTitle}
             </h2>
 
-            {/* Paragraphs */}
+            {/* Paragraphs in Ruq'ah ink handwriting */}
             {content.finalLetter.paragraphs.map((para, i) => (
               <p key={i} style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 'clamp(0.95rem, 3.2vw, 1.2rem)',
-                color: '#2c1810', lineHeight: 1.85, marginBottom: '1.3rem',
+                fontFamily: "'Aref Ruqaa', serif",
+                fontSize: 'clamp(1.15rem, 4vw, 1.45rem)',
+                color: '#1e1b4b', lineHeight: '34px', marginBottom: '1.6rem',
                 opacity: i < visibleParagraphs ? 1 : 0,
-                transform: i < visibleParagraphs ? 'translateY(0)' : 'translateY(15px)',
+                transform: i < visibleParagraphs ? 'translateY(0)' : 'translateY(12px)',
                 transition: 'opacity 1s ease, transform 1s ease',
               }}>
                 {para}
@@ -232,9 +251,10 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Signature */}
             {content.finalLetter.signature && (
               <p style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: 'clamp(1.05rem, 3.5vw, 1.35rem)',
-                color: '#2c1810', marginTop: '2rem', fontWeight: 600,
+                fontFamily: "'Aref Ruqaa', serif",
+                fontSize: 'clamp(1.25rem, 4.5vw, 1.6rem)',
+                color: '#881337', marginTop: '2.5rem', fontWeight: 700,
+                lineHeight: '34px',
                 opacity: visibleParagraphs > content.finalLetter.paragraphs.length ? 1 : 0,
                 transition: 'opacity 1s ease',
               }}>
@@ -245,8 +265,8 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Date */}
             {content.finalLetter.date && (
               <p style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '0.9rem',
-                color: 'rgba(44, 24, 16, 0.5)', marginTop: '0.5rem', fontStyle: 'italic',
+                fontFamily: "'Aref Ruqaa', serif", fontSize: '1rem',
+                color: 'rgba(30, 27, 75, 0.6)', marginTop: '0.6rem',
                 opacity: visibleParagraphs > content.finalLetter.paragraphs.length + 1 ? 1 : 0,
                 transition: 'opacity 1s ease',
               }}>
@@ -257,11 +277,10 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Show all button */}
             {!showAll && visibleParagraphs < totalItems && (
               <button onClick={handleShowAll} style={{
-                marginTop: '1rem',
-                background: 'none', border: 'none', color: 'rgba(44,24,16,0.4)',
-                fontFamily: "'Inter', sans-serif", fontSize: '0.7rem',
-                cursor: 'pointer', letterSpacing: '0.05em',
-                display: 'block',
+                marginTop: '1.2rem',
+                background: 'none', border: 'none', color: 'rgba(30,27,75,0.45)',
+                fontFamily: "'Aref Ruqaa', serif", fontSize: '0.85rem',
+                cursor: 'pointer', display: 'block',
               }}>
                 عرض الرسالة كاملة ↓
               </button>
@@ -271,21 +290,21 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           {/* Closing section */}
           {visibleParagraphs >= totalItems && (
             <div style={{
-              margin: '2.5rem 0 3rem 0',
+              margin: '2.5rem 0 3.5rem 0',
               textAlign: 'center', animation: 'fadeIn 1.5s ease forwards',
               zIndex: 10,
             }}>
               <p style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: 'clamp(0.9rem, 2.5vw, 1.15rem)', color: 'rgba(245,230,211,0.7)',
-                fontStyle: 'italic', marginBottom: '1.2rem', textAlign: 'center',
+                fontFamily: "'Aref Ruqaa', serif",
+                fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)', color: 'rgba(245,230,211,0.85)',
+                marginBottom: '1.2rem', textAlign: 'center',
               }}>
                 {content.closing.message}
               </p>
               <button onClick={onRestart} style={{
-                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                color: 'rgba(255,255,255,0.8)', fontFamily: "'Inter', sans-serif",
-                fontSize: '0.75rem', letterSpacing: '0.12em', padding: '0.7rem 1.8rem',
+                background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
+                color: 'rgba(255,255,255,0.9)', fontFamily: "'Aref Ruqaa', serif",
+                fontSize: '0.95rem', padding: '0.65rem 2rem',
                 borderRadius: '30px', cursor: 'pointer', backdropFilter: 'blur(10px)',
                 transition: 'all 0.3s ease',
               }}>
@@ -302,17 +321,17 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           flexDirection: 'column', animation: 'fadeIn 2s ease forwards', padding: '1rem',
         }}>
           <p style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: 'clamp(1rem, 3vw, 1.5rem)', color: '#f5e6d3',
-            fontStyle: 'italic', textAlign: 'center', maxWidth: '400px',
+            fontFamily: "'Aref Ruqaa', serif",
+            fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', color: '#f5e6d3',
+            textAlign: 'center', maxWidth: '440px',
           }}>
             {content.closing.message}
           </p>
           <button onClick={onRestart} style={{
-            marginTop: '2rem', background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)',
-            fontFamily: "'Inter', sans-serif", fontSize: '0.75rem',
-            letterSpacing: '0.15em', padding: '0.8rem 2rem', borderRadius: '30px',
+            marginTop: '2rem', background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.8)',
+            fontFamily: "'Aref Ruqaa', serif", fontSize: '0.95rem',
+            padding: '0.7rem 2rem', borderRadius: '30px',
             cursor: 'pointer', transition: 'all 0.3s ease',
           }}>
             {content.closing.restartText}

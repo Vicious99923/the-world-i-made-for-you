@@ -13,123 +13,236 @@ function heartShape(t:number):[number,number]{
 interface Particle {
   x: number; y: number;
   tx: number; ty: number;
-  hx: number; hy: number;
-  spread: number;
+  relX: number; relY: number; // relative to heart center
+  distFromCenter: number;     // 0 = exact center, 1 = outer edge
   size: number;
   color: string;
   speed: number;
   phase: number;
-  brightness: number;
+  baseBrightness: number;
 }
+
+const HEART_COLORS = ['#f43f5e', '#ec4899', '#f472b6', '#fda4af', '#fb7185', '#e11d48', '#ffffff'];
 
 export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showText, setShowText] = useState(false);
+  const [tapCount, setTapCount] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
   const completedRef = useRef(false);
   const mouseRef = useRef({x:0.5,y:0.5});
   const { play } = useSound();
   const animRef = useRef(0);
   const timeRef = useRef(0);
-  const clickCountRef = useRef(0);
   const particlesRef = useRef<Particle[]>([]);
   const initRef = useRef(false);
-  const timersRef = useRef<number[]>([]);
-  const COLORS = ['#be185d','#db2777','#ec4899','#f472b6','#fda4af','#ffffff'];
-
-  const addTimer = (id: number) => {
-    timersRef.current.push(id);
-    return id;
-  };
+  const tapCountRef = useRef(0);
 
   useEffect(() => {
     return () => {
-      timersRef.current.forEach(t => clearTimeout(t));
       cancelAnimationFrame(animRef.current);
     };
   }, []);
 
   useEffect(() => {
-    if(initRef.current)return; initRef.current=true;
-    const isMobile=window.innerWidth<768;
-    const count=isMobile?1000:2500;
-    const w=window.innerWidth,h=window.innerHeight;
-    const scale=Math.min(w,h)*(isMobile ? 0.022 : 0.016);
-    const cx=w/2,cy=h/2-(isMobile ? 10 : 20);
-    const parts:Particle[]=[];
-    for(let i=0;i<count;i++){
-      const angle=(i/count)*Math.PI*2;
-      const [hx,hy]=heartShape(angle);
-      const spread=Math.random()*0.85+0.15;
+    if(initRef.current) return;
+    initRef.current = true;
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 1200 : 2600;
+    const w = window.innerWidth, h = window.innerHeight;
+    const scale = Math.min(w, h) * (isMobile ? 0.023 : 0.017);
+    const cx = w / 2, cy = h / 2 - (isMobile ? 10 : 20);
+    const parts: Particle[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const [hx, hy] = heartShape(angle);
+      // Center of heart mass is around (0, 4)
+      const centerY = 4;
+      // Use sqrt for uniform distribution from center out to prevent center hole
+      const spread = Math.sqrt(Math.random());
+      const relX = hx * spread;
+      const relY = centerY + (hy - centerY) * spread;
+      const distFromCenter = spread;
+
       parts.push({
-        x:Math.random()*w,y:Math.random()*h,
-        tx:cx+hx*scale*spread,ty:cy+hy*scale*spread,
-        hx, hy, spread,
-        size:Math.random()*(isMobile ? 1.6 : 1.8)+0.4,
-        color:COLORS[Math.floor(Math.random()*COLORS.length)],
-        speed:Math.random()*0.03+0.01,
-        phase:Math.random()*Math.PI*2,
-        brightness:Math.random(),
+        x: Math.random() * w,
+        y: Math.random() * h,
+        tx: cx + relX * scale,
+        ty: cy + relY * scale,
+        relX,
+        relY,
+        distFromCenter,
+        size: Math.random() * (isMobile ? 1.8 : 2.0) + 0.5,
+        color: HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)],
+        speed: Math.random() * 0.035 + 0.012,
+        phase: Math.random() * Math.PI * 2,
+        baseBrightness: Math.random() * 0.3 + 0.7,
       });
     }
-    particlesRef.current=parts;
-    addTimer(window.setTimeout(()=>setShowText(true),1200));
-    addTimer(window.setTimeout(()=>setCanProceed(true),8000));
+
+    // Extra density in the very core center
+    const coreCount = isMobile ? 200 : 400;
+    for (let i = 0; i < coreCount; i++) {
+      const ca = Math.random() * Math.PI * 2;
+      const cr = Math.random() * 5;
+      const relX = Math.cos(ca) * cr;
+      const relY = 4 + Math.sin(ca) * cr;
+      parts.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        tx: cx + relX * scale,
+        ty: cy + relY * scale,
+        relX,
+        relY,
+        distFromCenter: cr / 16,
+        size: Math.random() * 2 + 1,
+        color: '#ffffff',
+        speed: Math.random() * 0.04 + 0.02,
+        phase: Math.random() * Math.PI * 2,
+        baseBrightness: 1,
+      });
+    }
+
+    particlesRef.current = parts;
+    setTimeout(() => setShowText(true), 800);
   }, []);
 
   useEffect(() => {
-    const h=(e:MouseEvent|TouchEvent)=>{
-      const cx='touches' in e?(e as TouchEvent).touches[0]?.clientX??0:(e as MouseEvent).clientX;
-      const cy='touches' in e?(e as TouchEvent).touches[0]?.clientY??0:(e as MouseEvent).clientY;
-      mouseRef.current={x:cx/window.innerWidth,y:cy/window.innerHeight};
+    const h = (e: MouseEvent | TouchEvent) => {
+      const cx = 'touches' in e ? (e as TouchEvent).touches[0]?.clientX ?? 0 : (e as MouseEvent).clientX;
+      const cy = 'touches' in e ? (e as TouchEvent).touches[0]?.clientY ?? 0 : (e as MouseEvent).clientY;
+      mouseRef.current = { x: cx / window.innerWidth, y: cy / window.innerHeight };
     };
-    window.addEventListener('mousemove',h);window.addEventListener('touchmove',h,{passive:true});
-    return()=>{window.removeEventListener('mousemove',h);window.removeEventListener('touchmove',h);};
+    window.addEventListener('mousemove', h);
+    window.addEventListener('touchmove', h, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', h);
+      window.removeEventListener('touchmove', h);
+    };
   }, []);
 
   useEffect(() => {
-    const canvas=canvasRef.current; if(!canvas)return;
-    const ctx=canvas.getContext('2d')!;
-    const resize=()=>{
-      const dpr=window.devicePixelRatio||1;
-      canvas.width=window.innerWidth*dpr;canvas.height=window.innerHeight*dpr;
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-      canvas.style.width=window.innerWidth+'px';canvas.style.height=window.innerHeight+'px';
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
 
-      const w=window.innerWidth, h=window.innerHeight;
+      const w = window.innerWidth, h = window.innerHeight;
       const isMob = w < 768;
-      const scale = Math.min(w, h) * (isMob ? 0.022 : 0.016);
-      const cx = w/2, cy = h/2 - (isMob ? 10 : 20);
+      const scale = Math.min(w, h) * (isMob ? 0.023 : 0.017);
+      const cx = w / 2, cy = h / 2 - (isMob ? 10 : 20);
       particlesRef.current.forEach(p => {
-        p.tx = cx + p.hx * scale * p.spread;
-        p.ty = cy + p.hy * scale * p.spread;
+        p.tx = cx + p.relX * scale;
+        p.ty = cy + p.relY * scale;
       });
     };
-    resize(); window.addEventListener('resize',resize);
-    const draw=()=>{
-      const w=window.innerWidth,h=window.innerHeight; timeRef.current+=0.016; const t=timeRef.current;
-      ctx.fillStyle='rgba(10,0,8,0.25)';ctx.fillRect(0,0,w,h);
-      const mx=mouseRef.current.x*w,my=mouseRef.current.y*h;
-      particlesRef.current.forEach(p=>{
-        p.x+=(p.tx-p.x)*p.speed; p.y+=(p.ty-p.y)*p.speed;
-        const dx=p.x-mx,dy=p.y-my,dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<70&&dist>0){p.x+=(dx/dist)*2.5;p.y+=(dy/dist)*2.5;}
-        const breathe=Math.sin(t*1.5+p.phase)*0.5+0.5;
-        const alpha=0.3+p.brightness*0.5+breathe*0.2;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.size*(0.8+breathe*0.4),0,Math.PI*2);
-        ctx.globalAlpha=Math.min(alpha,1);ctx.fillStyle=p.color;ctx.fill();
-        if(p.brightness>0.8){ctx.beginPath();ctx.arc(p.x,p.y,p.size*3,0,Math.PI*2);ctx.globalAlpha=0.04;ctx.fill();}
+    resize();
+    window.addEventListener('resize', resize);
+
+    const draw = () => {
+      const w = window.innerWidth, h = window.innerHeight;
+      timeRef.current += 0.016;
+      const t = timeRef.current;
+      const tc = tapCountRef.current;
+
+      // Stage of illumination:
+      // tc === 0: Dormant / dim (0.15)
+      // tc === 1: Core lights up (0.45)
+      // tc === 2: Inner half lights up (0.75)
+      // tc >= 3: Full glorious heart (1.0)
+      const globalLight = tc === 0 ? 0.16 : tc === 1 ? 0.48 : tc === 2 ? 0.76 : 1.0;
+
+      ctx.fillStyle = 'rgba(8, 2, 10, 0.28)';
+      ctx.fillRect(0, 0, w, h);
+
+      const mx = mouseRef.current.x * w, my = mouseRef.current.y * h;
+
+      particlesRef.current.forEach(p => {
+        p.x += (p.tx - p.x) * p.speed;
+        p.y += (p.ty - p.y) * p.speed;
+
+        const dx = p.x - mx, dy = p.y - my, dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 70 && dist > 0) {
+          p.x += (dx / dist) * 2;
+          p.y += (dy / dist) * 2;
+        }
+
+        // Illumination depends on tapCount and distFromCenter:
+        let particleIllumination = 0.12;
+        if (tc === 0) {
+          // Dim outline/faint glow
+          particleIllumination = 0.15 + Math.sin(t * 1.5 + p.phase) * 0.06;
+        } else if (tc === 1) {
+          // Inner core lit up
+          particleIllumination = p.distFromCenter < 0.45 ? 0.85 : 0.25;
+        } else if (tc === 2) {
+          // 80% lit up
+          particleIllumination = p.distFromCenter < 0.8 ? 0.95 : 0.35;
+        } else {
+          // Fully lit up
+          particleIllumination = 1.0;
+        }
+
+        const breathe = Math.sin(t * 2 + p.phase) * 0.5 + 0.5;
+        const alpha = Math.min(particleIllumination * (0.4 + p.baseBrightness * 0.5 + breathe * 0.2), 1.0);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * (0.8 + breathe * 0.35 * (tc >= 2 ? 1 : 0.5)), 0, Math.PI * 2);
+        ctx.globalAlpha = Math.max(0.08, alpha);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        // Shimmer when active
+        if (tc >= 2 && p.baseBrightness > 0.85) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+          ctx.globalAlpha = 0.06;
+          ctx.fill();
+        }
       });
-      ctx.globalAlpha=1;
-      const bg=ctx.createRadialGradient(w/2,h/2-20,0,w/2,h/2-20,180);
-      bg.addColorStop(0,`rgba(219,39,119,${0.025+Math.sin(t)*0.01})`);bg.addColorStop(1,'transparent');
-      ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
-      animRef.current=requestAnimationFrame(draw);
+
+      ctx.globalAlpha = 1;
+
+      // Ambient center glow that intensifies with each tap
+      const glowAlpha = tc === 0 ? 0.015 : tc === 1 ? 0.05 : tc === 2 ? 0.09 : 0.14;
+      const bg = ctx.createRadialGradient(w / 2, h / 2 - 10, 0, w / 2, h / 2 - 10, Math.min(w, h) * 0.35);
+      bg.addColorStop(0, `rgba(244, 63, 94, ${glowAlpha + Math.sin(t * 2) * 0.02})`);
+      bg.addColorStop(1, 'transparent');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+
+      animRef.current = requestAnimationFrame(draw);
     };
-    ctx.fillStyle='#0a0008';ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = '#08020a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     draw();
-    return()=>{cancelAnimationFrame(animRef.current);window.removeEventListener('resize',resize);};
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
   }, []);
+
+  const handleHeartTap = useCallback(() => {
+    play('heartbeat');
+    play('sparkle');
+    setTapCount(prev => {
+      const next = prev + 1;
+      tapCountRef.current = next;
+      if (next >= 3) {
+        setCanProceed(true);
+      }
+      return next;
+    });
+  }, [play]);
 
   const triggerComplete = useCallback(() => {
     if (completedRef.current) return;
@@ -137,64 +250,73 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
     onComplete();
   }, [onComplete]);
 
-  const handleClick = useCallback(()=>{
-    clickCountRef.current++; play('heartbeat');
-    if(clickCountRef.current>=3 && !completedRef.current){
-      setCanProceed(true);
-      addTimer(window.setTimeout(()=>{
-        if (!completedRef.current) {
-          completedRef.current = true;
-          onComplete();
-        }
-      }, 2200));
-    }
-  },[play,onComplete]);
+  // Dynamic interactive subtitle based on tap count
+  const getSubtitle = () => {
+    if (tapCount === 0) return 'المسي القلب يا جنجونه عشان ينور… ♡';
+    if (tapCount === 1) return 'المسي تاني وخليه ينور أكتر… 🌸';
+    if (tapCount === 2) return 'لمسة كمان عشان ينور كله يا مغوليه… ✨';
+    return 'كل حتة نورت بيكي يا هولي ♡';
+  };
 
   return (
-    <div style={{width:'100%',height:'100%',position:'relative'}}>
-      <canvas ref={canvasRef} onClick={handleClick}
-        onTouchEnd={(e)=>{e.preventDefault(); handleClick();}}
-        style={{position:'absolute',inset:0,cursor:'pointer'}} />
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <canvas
+        ref={canvasRef}
+        onClick={handleHeartTap}
+        onTouchEnd={e => {
+          e.preventDefault();
+          handleHeartTap();
+        }}
+        style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+      />
 
       {showText && (
         <div style={{
-          position: 'absolute', top: 'clamp(6%, 8vh, 10%)', left: 0, width: '100%',
+          position: 'absolute', top: 'clamp(5%, 7vh, 10%)', left: 0, width: '100%',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          pointerEvents: 'none', animation: 'fadeInUp 2s ease forwards',
+          pointerEvents: 'none', animation: 'fadeInUp 1.8s ease forwards',
           zIndex: 5, padding: '0 1rem',
         }}>
-          <div style={{ width: '92%', maxWidth: '520px', textAlign: 'center', direction: 'rtl' }}>
+          <div style={{ width: '92%', maxWidth: '540px', textAlign: 'center', direction: 'rtl' }}>
             <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.15rem, 3.8vw, 1.85rem)', fontWeight: 400, color: '#fce7f3',
-              lineHeight: 1.5, marginBottom: '0.6rem', textAlign: 'center',
+              fontFamily: "'Aref Ruqaa', serif",
+              fontSize: 'clamp(1.3rem, 4.4vw, 2.1rem)', fontWeight: 700, color: '#fce7f3',
+              lineHeight: 1.55, marginBottom: '0.6rem', textAlign: 'center',
             }}>
               {content.heart.title}
             </h2>
             <p style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(0.85rem, 2.4vw, 1.05rem)', color: 'rgba(253,164,175,0.75)',
-              fontStyle: 'italic', animation: 'pulse 3s ease-in-out infinite',
+              fontFamily: "'Aref Ruqaa', serif",
+              fontSize: 'clamp(1rem, 3.2vw, 1.25rem)', color: 'rgba(253,164,175,0.9)',
+              fontStyle: 'normal', animation: 'pulse 2.5s ease-in-out infinite',
               textAlign: 'center',
             }}>
-              {content.heart.subtitle}
+              {getSubtitle()}
             </p>
           </div>
         </div>
       )}
 
+      {/* Manual proceed button only - NO auto advance */}
       <div style={{
         position: 'absolute', bottom: 'clamp(1.8rem, 4vh, 2.8rem)', left: 0, width: '100%',
         display: 'flex', justifyContent: 'center', textAlign: 'center', zIndex: 10,
         pointerEvents: 'none',
       }}>
         {canProceed && (
-          <button onClick={triggerComplete} style={{
-            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
-            color: 'rgba(255,255,255,0.85)', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem',
-            padding: '0.5rem 1.6rem', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.3s ease',
-            pointerEvents: 'auto',
-          }}>كملي للرسالة →</button>
+          <button
+            onClick={triggerComplete}
+            style={{
+              background: 'linear-gradient(135deg, rgba(244,63,94,0.35), rgba(236,72,153,0.35))',
+              border: '1px solid rgba(255,255,255,0.3)',
+              color: '#ffffff', fontFamily: "'Aref Ruqaa', serif", fontSize: '0.95rem',
+              padding: '0.6rem 2rem', borderRadius: '30px', cursor: 'pointer',
+              transition: 'all 0.3s ease', pointerEvents: 'auto',
+              boxShadow: '0 8px 25px rgba(244,63,94,0.35)',
+              animation: 'fadeInUp 0.8s ease forwards',
+            }}>
+            كملي للرسالة يا جنجونه →
+          </button>
         )}
       </div>
     </div>

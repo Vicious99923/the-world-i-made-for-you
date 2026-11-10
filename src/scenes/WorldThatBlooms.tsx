@@ -19,7 +19,6 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
   const [bloomCount, setBloomCount] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
   const completedRef = useRef(false);
-  const timersRef = useRef<number[]>([]);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const { play } = useSound();
   const animRef = useRef(0);
@@ -28,14 +27,8 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
   const firefliesRef = useRef<{x:number;y:number;vx:number;vy:number;phase:number;size:number}[]>([]);
   const timeRef = useRef(0);
 
-  const addTimer = (id: number) => {
-    timersRef.current.push(id);
-    return id;
-  };
-
   useEffect(() => {
     return () => {
-      timersRef.current.forEach(t => clearTimeout(t));
       cancelAnimationFrame(animRef.current);
     };
   }, []);
@@ -47,8 +40,7 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
       vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.3,
       phase: Math.random()*Math.PI*2, size: Math.random()*3+1.5,
     }));
-    addTimer(window.setTimeout(() => setShowText(true), 800));
-    addTimer(window.setTimeout(() => setCanProceed(true), 8000));
+    setTimeout(() => setShowText(true), 800);
   }, []);
 
   useEffect(() => {
@@ -160,18 +152,13 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
     }
     setBloomCount(prev => {
       const n = prev + 1;
-      if(n >= TARGET_BLOOMS && !completedRef.current) {
+      // NO auto advance - just enable the button
+      if(n >= TARGET_BLOOMS) {
         setCanProceed(true);
-        addTimer(window.setTimeout(() => {
-          if (!completedRef.current) {
-            completedRef.current = true;
-            onComplete();
-          }
-        }, 2200));
       }
       return n;
     });
-  }, [play, onComplete]);
+  }, [play]);
 
   const handleClick = useCallback((e:React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -201,16 +188,16 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
         }}>
           <div style={{ width: '92%', maxWidth: '560px', textAlign: 'center', direction: 'rtl' }}>
             <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.2rem, 4vw, 2rem)', fontWeight: 400, color: '#fce7f3',
-              lineHeight: 1.5, marginBottom: '0.6rem', textAlign: 'center',
+              fontFamily: "'Aref Ruqaa', serif",
+              fontSize: 'clamp(1.3rem, 4.4vw, 2.1rem)', fontWeight: 700, color: '#fce7f3',
+              lineHeight: 1.55, marginBottom: '0.6rem', textAlign: 'center',
             }}>
               {content.garden.title}
             </h2>
             <p style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)', color: 'rgba(249,168,212,0.75)',
-              fontStyle: 'italic', textAlign: 'center',
+              fontFamily: "'Aref Ruqaa', serif",
+              fontSize: 'clamp(0.95rem, 3vw, 1.2rem)', color: 'rgba(249,168,212,0.85)',
+              fontStyle: 'normal', textAlign: 'center',
             }}>
               {content.garden.subtitle}
             </p>
@@ -218,13 +205,14 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
         </div>
       )}
 
+      {/* Bottom controls */}
       <div style={{
         position: 'absolute', bottom: 'clamp(1.8rem, 4vh, 2.8rem)', left: 0, width: '100%',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         textAlign: 'center', zIndex: 10, pointerEvents: 'none',
       }}>
         <div style={{
-          width: '130px', height: '3px', background: 'rgba(255,255,255,0.12)',
+          width: '130px', height: '4px', background: 'rgba(255,255,255,0.12)',
           borderRadius: '2px', overflow: 'hidden', margin: '0 auto',
         }}>
           <div style={{
@@ -233,16 +221,19 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
           }} />
         </div>
         <p style={{
-          fontFamily: "'Inter', sans-serif", fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)',
+          fontFamily: "'Aref Ruqaa', serif", fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)',
           marginTop: '0.5rem',
-        }}>اضغطي عشان تزهر 🌸</p>
+        }}>
+          {bloomCount >= TARGET_BLOOMS ? 'جمال الورد كمل بيكي يا جنجونه 🌸' : 'اضغطي عشان تزهر 🌸'}
+        </p>
         {canProceed && (
           <button onClick={triggerComplete} style={{
-            marginTop: '0.8rem', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
-            color: 'rgba(255,255,255,0.85)', fontFamily: "'Inter', sans-serif", fontSize: '0.78rem',
-            padding: '0.5rem 1.6rem', borderRadius: '20px', cursor: 'pointer', transition: 'all 0.3s ease',
-            pointerEvents: 'auto',
-          }}>كملي →</button>
+            marginTop: '0.8rem', background: 'linear-gradient(135deg, rgba(244,114,182,0.35), rgba(232,121,249,0.35))',
+            border: '1px solid rgba(255,255,255,0.3)',
+            color: '#ffffff', fontFamily: "'Aref Ruqaa', serif", fontSize: '0.9rem',
+            padding: '0.55rem 1.8rem', borderRadius: '25px', cursor: 'pointer', transition: 'all 0.3s ease',
+            pointerEvents: 'auto', boxShadow: '0 8px 25px rgba(244,114,182,0.3)',
+          }}>كملي للمفاجأة التانية →</button>
         )}
       </div>
     </div>

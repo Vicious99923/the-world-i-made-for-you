@@ -20,27 +20,19 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
   const timeRef = useRef(0);
   const initRef = useRef(false);
   const openedAtRef = useRef(0);
-  const timersRef = useRef<number[]>([]);
-
-  const addTimer = (id: number) => {
-    timersRef.current.push(id);
-    return id;
-  };
 
   useEffect(() => {
     return () => {
-      timersRef.current.forEach(t => clearTimeout(t));
       cancelAnimationFrame(animRef.current);
     };
   }, []);
 
-  useEffect(() => { addTimer(window.setTimeout(() => setCanProceed(true), 10000)); }, []);
-
   useEffect(() => {
-    if(initRef.current) return; initRef.current=true;
+    if(initRef.current) return;
+    initRef.current = true;
     orbsRef.current = content.moments.slice(0,5).map((m,i) => ({
-      id:m.id, x:0, y:0,
-      size:25, color:ORB_COLORS[i%5], phase:i*1.3, speed:0.4+i*0.08, discovered:false,
+      id: m.id, x: 0, y: 0,
+      size: 25, color: ORB_COLORS[i % 5], phase: i * 1.3, speed: 0.4 + i * 0.08, discovered: false,
     }));
   }, []);
 
@@ -77,14 +69,14 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
         ctx.fillStyle=`rgba(255,255,255,${0.04+Math.sin(t+i)*0.02})`;ctx.fill();
       }
 
-      const mobPos = [{nx:0.26,ny:0.25},{nx:0.74,ny:0.25},{nx:0.5,ny:0.42},{nx:0.26,ny:0.60},{nx:0.74,ny:0.60}];
+      const mobPos = [{nx:0.26,ny:0.24},{nx:0.74,ny:0.24},{nx:0.5,ny:0.42},{nx:0.26,ny:0.62},{nx:0.74,ny:0.62}];
       const deskPos = [{nx:0.2,ny:0.25},{nx:0.75,ny:0.2},{nx:0.15,ny:0.55},{nx:0.8,ny:0.5},{nx:0.5,ny:0.4}];
 
       orbsRef.current.forEach((orb, i)=>{
         const target = isMobile ? mobPos[i % 5] : deskPos[i % 5];
         const baseX = target.nx * w;
         const baseY = target.ny * h;
-        orb.size = isMobile ? 22 : 25;
+        orb.size = isMobile ? 22 : 26;
         orb.x = baseX + Math.sin(t*orb.speed+orb.phase)*(isMobile ? 8 : 15);
         orb.y = baseY + Math.cos(t*orb.speed*0.7+orb.phase)*(isMobile ? 6 : 10);
 
@@ -129,14 +121,8 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
           orb.discovered=true;
           setDiscoveredCount(prev=>{
             const n=prev+1;
-            if(n>=content.moments.length && !completedRef.current){
+            if(n>=content.moments.length) {
               setCanProceed(true);
-              addTimer(window.setTimeout(()=>{
-                if (!completedRef.current) {
-                  completedRef.current = true;
-                  onComplete();
-                }
-              }, 2200));
             }
             return n;
           });
@@ -147,7 +133,17 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
         break;
       }
     }
-  },[activeOrb,play,onComplete]);
+  },[activeOrb,play]);
+
+  // Progressive guidance message requested by user
+  const getPromptMessage = () => {
+    if (discoveredCount === 0) return 'دوسي علي واحده من دول ✨';
+    if (discoveredCount === 1) return 'دوسي علي واحده تانيه 🌸';
+    if (discoveredCount === 2) return 'كمان واحده ♡';
+    if (discoveredCount === 3) return 'كمان واحده يا هولي ✨';
+    if (discoveredCount === 4) return 'اخر واحده خلاص 💫';
+    return 'شاطرة يا مغوليه شوفتيهم كلهم ♡';
+  };
 
   const activeMoment = content.moments.find(m => m.id === activeOrb);
 
@@ -170,11 +166,35 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
         }}
         style={{position:'absolute',inset:0,cursor:'pointer'}} />
 
+      {/* Centered Interactive Prompt Message */}
+      {!activeMoment && (
+        <div style={{
+          position:'absolute', top:'clamp(8%, 10vh, 12%)', left:0, width:'100%',
+          display:'flex', justifyContent:'center', pointerEvents:'none', zIndex:5,
+          padding:'0 1rem',
+        }}>
+          <div style={{
+            background:'rgba(255,255,255,0.08)', backdropFilter:'blur(15px)', WebkitBackdropFilter:'blur(15px)',
+            border:'1px solid rgba(255,255,255,0.15)', borderRadius:'30px',
+            padding:'0.6rem 1.8rem', textAlign:'center',
+            boxShadow:'0 10px 30px rgba(0,0,0,0.3)',
+          }}>
+            <p style={{
+              fontFamily:"'Aref Ruqaa', serif",
+              fontSize:'clamp(1.1rem, 3.8vw, 1.45rem)',
+              color:'#fef3c7', direction:'rtl',
+              letterSpacing:'0.02em',
+            }}>
+              {getPromptMessage()}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Centered Modal Popup */}
       {activeMoment && (
         <div
           onClick={() => {
-            // Prevent synthetic double-tap click from instantly closing modal
             if (Date.now() - openedAtRef.current < 400) return;
             setActiveOrb(null);
           }}
@@ -191,34 +211,34 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
             style={{
               maxWidth:'460px', width:'92%', maxHeight:'82vh', overflowY:'auto',
               padding:'clamp(1.5rem, 5vw, 2.5rem)',
-              background:'linear-gradient(145deg, rgba(35, 20, 50, 0.92), rgba(20, 10, 30, 0.95))',
+              background:'linear-gradient(145deg, rgba(35, 20, 50, 0.95), rgba(20, 10, 30, 0.96))',
               backdropFilter:'blur(25px)', WebkitBackdropFilter:'blur(25px)',
-              borderRadius:'24px', border:'1px solid rgba(255,255,255,0.18)',
+              borderRadius:'24px', border:'1px solid rgba(255,255,255,0.2)',
               animation:'fadeInUp 0.35s ease forwards', textAlign:'center',
-              boxShadow:'0 25px 60px rgba(0,0,0,0.65), 0 0 30px rgba(167,139,250,0.15)',
+              boxShadow:'0 25px 60px rgba(0,0,0,0.65), 0 0 30px rgba(167,139,250,0.18)',
               direction:'rtl', position:'relative',
             }}>
             <button
               onClick={() => setActiveOrb(null)}
               style={{
                 position:'absolute', top:'1rem', left:'1rem',
-                background:'rgba(255,255,255,0.1)', border:'none', borderRadius:'50%',
+                background:'rgba(255,255,255,0.12)', border:'none', borderRadius:'50%',
                 width:'32px', height:'32px', color:'#fff', cursor:'pointer',
                 display:'flex', alignItems:'center', justifyContent:'center',
                 fontSize:'0.9rem',
               }}>✕</button>
 
             <h3 style={{
-              fontFamily:"'Playfair Display',Georgia,serif",
-              fontSize:'clamp(1.15rem, 4.2vw, 1.6rem)', fontWeight:600, color:'#fef3c7',
+              fontFamily:"'Aref Ruqaa', serif",
+              fontSize:'clamp(1.3rem, 4.8vw, 1.8rem)', fontWeight:700, color:'#fef3c7',
               marginBottom:'1rem', marginTop:'0.5rem', textAlign:'center',
             }}>
               {activeMoment.title}
             </h3>
             <p style={{
-              fontFamily:"'Inter',sans-serif",
-              fontSize:'clamp(0.95rem, 3.4vw, 1.2rem)', color:'rgba(255,255,255,0.92)',
-              lineHeight:1.75, textAlign:'center',
+              fontFamily:"'Aref Ruqaa', serif",
+              fontSize:'clamp(1.1rem, 3.8vw, 1.35rem)', color:'rgba(255,255,255,0.95)',
+              lineHeight:1.8, textAlign:'center',
             }}>
               {activeMoment.text}
             </p>
@@ -226,10 +246,10 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
               onClick={() => setActiveOrb(null)}
               style={{
                 marginTop:'1.6rem',
-                background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)',
-                color:'rgba(255,255,255,0.8)', padding:'0.45rem 1.4rem',
-                borderRadius:'20px', fontSize:'0.75rem', cursor:'pointer',
-                fontFamily:"'Inter',sans-serif",
+                background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.25)',
+                color:'rgba(255,255,255,0.9)', padding:'0.45rem 1.6rem',
+                borderRadius:'20px', fontSize:'0.85rem', cursor:'pointer',
+                fontFamily:"'Aref Ruqaa', serif",
               }}>
               إغلاق ♡
             </button>
@@ -244,16 +264,17 @@ export const LittleThings: React.FC<Props> = ({ onComplete }) => {
         textAlign:'center', zIndex:5, pointerEvents:'none',
       }}>
         <p style={{
-          fontFamily:"'Inter',sans-serif", fontSize:'0.72rem', color:'rgba(255,255,255,0.45)',
+          fontFamily:"'Aref Ruqaa', serif", fontSize:'0.85rem', color:'rgba(255,255,255,0.5)',
           pointerEvents:'none',
-        }}>{discoveredCount}/{content.moments.length} اكتشفتي 💫</p>
+        }}>{discoveredCount}/{content.moments.length} شفتي 💫</p>
         {canProceed && (
           <button onClick={triggerComplete} style={{
-            marginTop:'0.8rem', background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.25)',
-            color:'rgba(255,255,255,0.85)', fontFamily:"'Inter',sans-serif", fontSize:'0.78rem',
-            padding:'0.5rem 1.6rem', borderRadius:'20px', cursor:'pointer', transition:'all 0.3s ease',
-            pointerEvents:'auto',
-          }}>كملي →</button>
+            marginTop:'0.8rem', background:'linear-gradient(135deg, rgba(167,139,250,0.3), rgba(244,114,182,0.3))',
+            border:'1px solid rgba(255,255,255,0.3)',
+            color:'#ffffff', fontFamily:"'Aref Ruqaa', serif", fontSize:'0.9rem',
+            padding:'0.55rem 1.8rem', borderRadius:'25px', cursor:'pointer', transition:'all 0.3s ease',
+            pointerEvents:'auto', boxShadow:'0 8px 25px rgba(167,139,250,0.3)',
+          }}>كملي للقلب يا هولي →</button>
         )}
       </div>
     </div>
