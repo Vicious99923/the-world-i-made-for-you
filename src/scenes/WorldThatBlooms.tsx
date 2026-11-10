@@ -87,7 +87,8 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
       const bg=ctx.createLinearGradient(0,0,0,h);
       bg.addColorStop(0,'#1a0a2e'); bg.addColorStop(0.3,'#2d1b4e'); bg.addColorStop(0.7,'#1a2a1a'); bg.addColorStop(1,'#0d1f0d');
       ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-      const groundY=h*0.75;
+      const isMobile = w < 768;
+      const groundY = h * (isMobile ? 0.68 : 0.75);
       const gg=ctx.createLinearGradient(0,groundY,0,h);
       gg.addColorStop(0,'rgba(30,60,30,0.3)'); gg.addColorStop(1,'rgba(15,40,15,0.6)');
       ctx.fillStyle=gg; ctx.fillRect(0,groundY,w,h-groundY);
@@ -119,27 +120,29 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
   }, []);
 
   const addFlower = useCallback((cx:number,cy:number) => {
-    const groundY=window.innerHeight*0.75;
-    const y=Math.max(cy,groundY);
+    const isMobile = window.innerWidth < 768;
+    const groundY = window.innerHeight * (isMobile ? 0.68 : 0.75);
+    const y = Math.max(cy, groundY);
     const flower:Flower = {
-      x:cx,y,size:Math.random()*12+8,
-      color:FLOWER_COLORS[Math.floor(Math.random()*FLOWER_COLORS.length)],
-      bloomProgress:0,swayPhase:Math.random()*Math.PI*2,
-      swaySpeed:Math.random()*2+1,stemHeight:Math.random()*60+40,
-      petalCount:Math.floor(Math.random()*3)+5,
+      x: cx, y, size: Math.random() * (isMobile ? 10 : 12) + (isMobile ? 7 : 8),
+      color: FLOWER_COLORS[Math.floor(Math.random() * FLOWER_COLORS.length)],
+      bloomProgress: 0, swayPhase: Math.random() * Math.PI * 2,
+      swaySpeed: Math.random() * 2 + 1,
+      stemHeight: Math.random() * (isMobile ? 45 : 60) + (isMobile ? 30 : 40),
+      petalCount: Math.floor(Math.random() * 3) + 5,
     };
     flowersRef.current.push(flower); play('bloom');
     for(let i=0;i<6;i++){
       particlesRef.current.push({
-        x:cx,y:y-flower.stemHeight*0.3,
-        vx:(Math.random()-0.5)*3,vy:-Math.random()*2-0.5,
-        life:50,maxLife:50,color:flower.color,size:Math.random()*3+1,
+        x: cx, y: y - flower.stemHeight * 0.3,
+        vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 2 - 0.5,
+        life: 50, maxLife: 50, color: flower.color, size: Math.random() * 3 + 1,
       });
     }
     setBloomCount(prev => {
-      const n=prev+1;
-      if(n>=TARGET_BLOOMS && !completedRef.current) {
-        completedRef.current=true;
+      const n = prev + 1;
+      if(n >= TARGET_BLOOMS && !completedRef.current) {
+        completedRef.current = true;
         setCanProceed(true);
         // Auto-advance after 2 seconds
         setTimeout(() => onComplete(), 2000);
@@ -148,9 +151,18 @@ export const WorldThatBlooms: React.FC<Props> = ({ onComplete }) => {
     });
   }, [play, onComplete]);
 
-  const handleClick = useCallback((e:React.MouseEvent<HTMLCanvasElement>) => { addFlower(e.clientX,e.clientY); }, [addFlower]);
+  const handleClick = useCallback((e:React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    addFlower(e.clientX - rect.left, e.clientY - rect.top);
+  }, [addFlower]);
+
   const handleTouch = useCallback((e:React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault(); const t=e.changedTouches[0]; if(t) addFlower(t.clientX,t.clientY);
+    e.preventDefault();
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const t = e.changedTouches[0];
+    if (t) addFlower(t.clientX - rect.left, t.clientY - rect.top);
   }, [addFlower]);
 
   return (

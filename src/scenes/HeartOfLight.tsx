@@ -10,6 +10,18 @@ function heartShape(t:number):[number,number]{
   return [x,y];
 }
 
+interface Particle {
+  x: number; y: number;
+  tx: number; ty: number;
+  hx: number; hy: number;
+  spread: number;
+  size: number;
+  color: string;
+  speed: number;
+  phase: number;
+  brightness: number;
+}
+
 export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showText, setShowText] = useState(false);
@@ -20,18 +32,18 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
   const animRef = useRef(0);
   const timeRef = useRef(0);
   const clickCountRef = useRef(0);
-  const particlesRef = useRef<{x:number;y:number;tx:number;ty:number;size:number;color:string;speed:number;phase:number;brightness:number}[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
   const initRef = useRef(false);
   const COLORS = ['#be185d','#db2777','#ec4899','#f472b6','#fda4af','#ffffff'];
 
   useEffect(() => {
     if(initRef.current)return; initRef.current=true;
     const isMobile=window.innerWidth<768;
-    const count=isMobile?1200:3000;
+    const count=isMobile?1000:2500;
     const w=window.innerWidth,h=window.innerHeight;
-    const scale=Math.min(w,h)*0.016;
-    const cx=w/2,cy=h/2-20;
-    const parts:typeof particlesRef.current=[];
+    const scale=Math.min(w,h)*(isMobile ? 0.022 : 0.016);
+    const cx=w/2,cy=h/2-(isMobile ? 10 : 20);
+    const parts:Particle[]=[];
     for(let i=0;i<count;i++){
       const angle=(i/count)*Math.PI*2;
       const [hx,hy]=heartShape(angle);
@@ -39,7 +51,8 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
       parts.push({
         x:Math.random()*w,y:Math.random()*h,
         tx:cx+hx*scale*spread,ty:cy+hy*scale*spread,
-        size:Math.random()*1.8+0.4,
+        hx, hy, spread,
+        size:Math.random()*(isMobile ? 1.6 : 1.8)+0.4,
         color:COLORS[Math.floor(Math.random()*COLORS.length)],
         speed:Math.random()*0.03+0.01,
         phase:Math.random()*Math.PI*2,
@@ -69,12 +82,20 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
       canvas.width=window.innerWidth*dpr;canvas.height=window.innerHeight*dpr;
       ctx.setTransform(dpr,0,0,dpr,0,0);
       canvas.style.width=window.innerWidth+'px';canvas.style.height=window.innerHeight+'px';
+
+      const w=window.innerWidth, h=window.innerHeight;
+      const isMob = w < 768;
+      const scale = Math.min(w, h) * (isMob ? 0.022 : 0.016);
+      const cx = w/2, cy = h/2 - (isMob ? 10 : 20);
+      particlesRef.current.forEach(p => {
+        p.tx = cx + p.hx * scale * p.spread;
+        p.ty = cy + p.hy * scale * p.spread;
+      });
     };
     resize(); window.addEventListener('resize',resize);
     const draw=()=>{
       const w=window.innerWidth,h=window.innerHeight; timeRef.current+=0.016; const t=timeRef.current;
-      ctx.fillStyle='rgba(10,0,8,0.2)';ctx.fillRect(0,0,w,h);
-      if(Math.floor(t*5)%2===0){ctx.fillStyle='rgba(10,0,8,0.3)';ctx.fillRect(0,0,w,h);}
+      ctx.fillStyle='rgba(10,0,8,0.25)';ctx.fillRect(0,0,w,h);
       const mx=mouseRef.current.x*w,my=mouseRef.current.y*h;
       particlesRef.current.forEach(p=>{
         p.x+=(p.tx-p.x)*p.speed; p.y+=(p.ty-p.y)*p.speed;
@@ -109,10 +130,11 @@ export const HeartOfLight: React.FC<Props> = ({ onComplete }) => {
 
   return (
     <div style={{width:'100%',height:'100%',position:'relative'}}>
-      <canvas ref={canvasRef} onClick={handleClick} onTouchEnd={handleClick}
+      <canvas ref={canvasRef} onClick={handleClick}
+        onTouchEnd={(e)=>{e.preventDefault(); handleClick();}}
         style={{position:'absolute',inset:0,cursor:'pointer'}} />
       {showText && (
-        <div style={{position:'absolute',top:'8%',left:'50%',transform:'translateX(-50%)',
+        <div style={{position:'absolute',top:'clamp(6%, 8vh, 10%)',left:'50%',transform:'translateX(-50%)',
           textAlign:'center',pointerEvents:'none',animation:'fadeInUp 2s ease forwards',
           width:'90%',maxWidth:'500px'}}>
           <h2 style={{fontFamily:"'Playfair Display',Georgia,serif",

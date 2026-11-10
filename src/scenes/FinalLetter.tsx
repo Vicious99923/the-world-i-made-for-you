@@ -19,7 +19,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
     const resize = () => {
-      const dpr = window.devicePixelRatio;
+      const dpr = window.devicePixelRatio || 1;
       canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px';
@@ -52,7 +52,6 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
         const a = p.alpha + Math.sin(p.phase) * 0.1;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(201, 149, 107, ${Math.max(0, a)})`; ctx.fill();
-        // Subtle glow
         const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
         gg.addColorStop(0, `rgba(201, 149, 107, ${Math.max(0, a * 0.3)})`);
         gg.addColorStop(1, 'transparent');
@@ -68,7 +67,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
   // Auto-reveal paragraphs
   useEffect(() => {
     if (phase !== 'letter' || showAll) return;
-    if (visibleParagraphs >= content.finalLetter.paragraphs.length + 2) return; // +2 for signature and date
+    if (visibleParagraphs >= content.finalLetter.paragraphs.length + 2) return;
     const timer = setTimeout(() => {
       setVisibleParagraphs(prev => prev + 1);
     }, 1200);
@@ -86,7 +85,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
     setVisibleParagraphs(content.finalLetter.paragraphs.length + 2);
   }, []);
 
-  const totalItems = content.finalLetter.paragraphs.length + 2; // paragraphs + signature + date
+  const totalItems = content.finalLetter.paragraphs.length + 2;
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -97,25 +96,17 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
         <div onClick={openEnvelope} style={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
           cursor: 'pointer', animation: 'fadeInUp 1.5s ease forwards', textAlign: 'center',
+          width: '90%', maxWidth: '340px',
         }}>
           {/* Envelope body */}
           <div style={{
-            width: 'clamp(200px, 60vw, 320px)', height: 'clamp(130px, 40vw, 200px)',
+            width: 'clamp(220px, 75vw, 320px)', height: 'clamp(140px, 45vw, 200px)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b, #b8845a)',
-            borderRadius: '8px', position: 'relative',
+            borderRadius: '8px', position: 'relative', margin: '0 auto',
             boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,149,107,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 25px 70px rgba(0,0,0,0.6), 0 0 60px rgba(201,149,107,0.25)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,149,107,0.15)';
-          }}
-          >
+          }}>
             {/* Flap */}
             <div style={{
               position: 'absolute', top: '-1px', left: '0', right: '0',
@@ -130,7 +121,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             </div>
             {/* Seal */}
             <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
+              width: '42px', height: '42px', borderRadius: '50%',
               background: 'radial-gradient(circle, #a83262, #8b2252)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1.2rem', color: '#f5e6d3', zIndex: 2,
@@ -138,14 +129,14 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             }}>♡</div>
           </div>
           <p style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(0.9rem, 2.5vw, 1.2rem)',
+            fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(0.95rem, 3vw, 1.25rem)',
             color: '#f5e6d3', marginTop: '1.5rem', fontStyle: 'italic',
             animation: 'pulse 3s ease-in-out infinite', letterSpacing: '0.05em',
           }}>{content.finalLetter.envelopeTitle}</p>
           <p style={{
-            fontFamily: "'Inter', sans-serif", fontSize: '0.65rem',
-            color: 'rgba(245,230,211,0.4)', marginTop: '0.8rem', letterSpacing: '0.15em',
-          }}>TAP TO OPEN</p>
+            fontFamily: "'Inter', sans-serif", fontSize: '0.7rem',
+            color: 'rgba(245,230,211,0.5)', marginTop: '0.8rem', letterSpacing: '0.15em',
+          }}>اضغطي عشان تفتحي 💌</p>
         </div>
       )}
 
@@ -156,7 +147,7 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
           animation: 'fadeIn 0.5s ease',
         }}>
           <div style={{
-            width: 'clamp(200px, 60vw, 320px)', height: 'clamp(130px, 40vw, 200px)',
+            width: 'clamp(220px, 75vw, 320px)', height: 'clamp(140px, 45vw, 200px)',
             background: 'linear-gradient(135deg, #d4a574, #c9956b)',
             borderRadius: '8px', position: 'relative',
             animation: 'envelopeOpen 1.5s ease forwards',
@@ -173,29 +164,34 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
 
       {/* Letter */}
       {phase === 'letter' && (
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-          overflowY: 'auto', padding: '3rem 1rem', animation: 'fadeIn 1.5s ease forwards',
-          WebkitOverflowScrolling: 'touch',
+        <div className="scrollable" style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          overflowY: 'auto', WebkitOverflowScrolling: 'touch',
+          padding: 'clamp(1.5rem, 4vh, 2.8rem) clamp(0.75rem, 3vw, 1.5rem)',
+          animation: 'fadeIn 1.2s ease forwards',
         }}>
           <div style={{
-            maxWidth: '580px', width: '92%', background: '#faf8f5',
-            borderRadius: '4px', padding: 'clamp(2rem, 6vw, 3.5rem)',
-            boxShadow: '0 20px 80px rgba(0,0,0,0.4), 0 0 1px rgba(0,0,0,0.1)',
-            position: 'relative', minHeight: '400px',
+            maxWidth: '560px', width: '100%', background: '#faf8f5',
+            borderRadius: '8px', padding: 'clamp(1.5rem, 5vw, 3rem)',
+            boxShadow: '0 20px 80px rgba(0,0,0,0.5), 0 0 1px rgba(0,0,0,0.1)',
+            position: 'relative', minHeight: '350px',
+            direction: 'rtl', textAlign: 'right',
           }}>
             {/* Paper texture overlay */}
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: '4px',
+              position: 'absolute', inset: 0, borderRadius: '8px',
               background: 'repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.03) 28px, rgba(0,0,0,0.03) 29px)',
               pointerEvents: 'none',
             }} />
 
             {/* Letter title */}
             <h2 style={{
-              fontFamily: "'Dancing Script', 'Caveat', cursive", fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',
-              color: '#2c1810', marginBottom: '2rem', fontWeight: 600,
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(1.3rem, 5vw, 2rem)',
+              color: '#2c1810', marginBottom: '1.8rem', fontWeight: 600,
               animation: 'fadeInUp 1s ease forwards',
+              textAlign: 'center',
             }}>
               {content.finalLetter.letterTitle}
             </h2>
@@ -203,8 +199,9 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Paragraphs */}
             {content.finalLetter.paragraphs.map((para, i) => (
               <p key={i} style={{
-                fontFamily: "'Dancing Script', 'Caveat', cursive", fontSize: 'clamp(1rem, 3vw, 1.3rem)',
-                color: '#2c1810', lineHeight: 1.8, marginBottom: '1.2rem',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 'clamp(0.95rem, 3.2vw, 1.2rem)',
+                color: '#2c1810', lineHeight: 1.85, marginBottom: '1.3rem',
                 opacity: i < visibleParagraphs ? 1 : 0,
                 transform: i < visibleParagraphs ? 'translateY(0)' : 'translateY(15px)',
                 transition: 'opacity 1s ease, transform 1s ease',
@@ -216,7 +213,8 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Signature */}
             {content.finalLetter.signature && (
               <p style={{
-                fontFamily: "'Dancing Script', 'Caveat', cursive", fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: 'clamp(1.05rem, 3.5vw, 1.35rem)',
                 color: '#2c1810', marginTop: '2rem', fontWeight: 600,
                 opacity: visibleParagraphs > content.finalLetter.paragraphs.length ? 1 : 0,
                 transition: 'opacity 1s ease',
@@ -240,43 +238,37 @@ export const FinalLetter: React.FC<Props> = ({ onRestart }) => {
             {/* Show all button */}
             {!showAll && visibleParagraphs < totalItems && (
               <button onClick={handleShowAll} style={{
-                position: 'absolute', bottom: '1rem', right: '1.5rem',
-                background: 'none', border: 'none', color: 'rgba(44,24,16,0.3)',
-                fontFamily: "'Inter', sans-serif", fontSize: '0.65rem',
-                cursor: 'pointer', letterSpacing: '0.1em',
+                marginTop: '1rem',
+                background: 'none', border: 'none', color: 'rgba(44,24,16,0.4)',
+                fontFamily: "'Inter', sans-serif", fontSize: '0.7rem',
+                cursor: 'pointer', letterSpacing: '0.05em',
+                display: 'block',
               }}>
-                SHOW ALL ↓
+                عرض الرسالة كاملة ↓
               </button>
             )}
           </div>
 
-          {/* Closing section */}
+          {/* Closing section - placed in flow so it never overlaps the letter! */}
           {visibleParagraphs >= totalItems && (
             <div style={{
-              position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)',
-              textAlign: 'center', animation: 'fadeIn 2s ease forwards',
+              margin: '2.5rem 0 3rem 0',
+              textAlign: 'center', animation: 'fadeIn 1.5s ease forwards',
+              zIndex: 10,
             }}>
               <p style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: 'clamp(0.85rem, 2vw, 1.1rem)', color: 'rgba(245,230,211,0.6)',
-                fontStyle: 'italic', marginBottom: '1rem',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1.15rem)', color: 'rgba(245,230,211,0.7)',
+                fontStyle: 'italic', marginBottom: '1.2rem',
               }}>
                 {content.closing.message}
               </p>
               <button onClick={onRestart} style={{
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter', sans-serif",
-                fontSize: '0.7rem', letterSpacing: '0.15em', padding: '0.6rem 1.5rem',
+                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                color: 'rgba(255,255,255,0.8)', fontFamily: "'Inter', sans-serif",
+                fontSize: '0.75rem', letterSpacing: '0.12em', padding: '0.7rem 1.8rem',
                 borderRadius: '30px', cursor: 'pointer', backdropFilter: 'blur(10px)',
                 transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.15)';
-                (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.8)';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.08)';
-                (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.5)';
               }}>
                 {content.closing.restartText}
               </button>

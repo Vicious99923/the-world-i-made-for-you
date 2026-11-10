@@ -84,10 +84,11 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
       });
 
       // Central orb
-      const orbX = w/2, orbY = h/2+40;
-      const baseGlow = 0.3+Math.sin(t*2)*0.15;
+      const isMobile = w < 768;
+      const orbX = w / 2, orbY = h / 2 + (isMobile ? 15 : 40);
+      const baseGlow = 0.3 + Math.sin(t * 2) * 0.15;
       const glow = orbGlowing ? 0.8 : baseGlow;
-      const orbSize = orbGlowing ? 18 : 14;
+      const orbSize = orbGlowing ? (isMobile ? 16 : 18) : (isMobile ? 12 : 14);
 
       for (let i=3;i>0;i--) {
         const g = ctx.createRadialGradient(orbX,orbY,0,orbX,orbY,orbSize*i*3);
@@ -130,26 +131,29 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const orbX = rect.width/2, orbY = rect.height/2+40;
-    const dist = Math.sqrt((e.clientX-rect.left-orbX)**2 + (e.clientY-rect.top-orbY)**2);
-    if (dist < 60) handleOrbClick();
+    const isMobile = window.innerWidth < 768;
+    const orbX = rect.width / 2, orbY = rect.height / 2 + (isMobile ? 15 : 40);
+    const dist = Math.sqrt((e.clientX - rect.left - orbX) ** 2 + (e.clientY - rect.top - orbY) ** 2);
+    if (dist < (isMobile ? 70 : 60)) handleOrbClick();
   }, [handleOrbClick]);
 
   const handleCanvasTouch = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     const touch = e.changedTouches[0];
     if (!rect || !touch) return;
-    const orbX = rect.width/2, orbY = rect.height/2+40;
-    const dist = Math.sqrt((touch.clientX-rect.left-orbX)**2 + (touch.clientY-rect.top-orbY)**2);
-    if (dist < 80) handleOrbClick();
+    const isMobile = window.innerWidth < 768;
+    const orbX = rect.width / 2, orbY = rect.height / 2 + (isMobile ? 15 : 40);
+    const dist = Math.sqrt((touch.clientX - rect.left - orbX) ** 2 + (touch.clientY - rect.top - orbY) ** 2);
+    if (dist < 90) handleOrbClick();
   }, [handleOrbClick]);
 
   const handleCanvasMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (orbClicked) return;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const orbX = rect.width/2, orbY = rect.height/2+40;
-    const dist = Math.sqrt((e.clientX-rect.left-orbX)**2 + (e.clientY-rect.top-orbY)**2);
+    const isMobile = window.innerWidth < 768;
+    const orbX = rect.width / 2, orbY = rect.height / 2 + (isMobile ? 15 : 40);
+    const dist = Math.sqrt((e.clientX - rect.left - orbX) ** 2 + (e.clientY - rect.top - orbY) ** 2);
     setOrbGlowing(dist < 80);
   }, [orbClicked]);
 
@@ -160,7 +164,7 @@ export const UnknownUniverse: React.FC<Props> = ({ onComplete }) => {
         style={{ position:'absolute', inset:0, cursor:'pointer' }} />
 
       {showText && !orbClicked && (
-        <div style={{ position:'absolute', top:'28%', left:'50%', transform:'translateX(-50%)',
+        <div style={{ position:'absolute', top:'clamp(18%, 24vh, 28%)', left:'50%', transform:'translateX(-50%)',
           textAlign:'center', pointerEvents:'none', animation:'fadeInUp 2s ease forwards',
           width:'90%', maxWidth:'500px' }}>
           <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",

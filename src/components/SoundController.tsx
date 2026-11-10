@@ -5,7 +5,7 @@ export const SoundController: React.FC = () => {
   const { sfxEnabled, musicPlaying, toggleSfx, toggleMusic } = useSound();
 
   return (
-    <div style={{
+    <div className="sound-controller" style={{
       position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 1000,
       display: 'flex', flexDirection: 'column', gap: '8px',
     }}>

@@ -7,9 +7,9 @@ interface Props {
 
 export const ProgressIndicator: React.FC<Props> = ({ current, total }) => {
   return (
-    <div style={{
+    <div className="progress-indicator" style={{
       position: 'fixed',
-      right: '2rem',
+      right: '1.8rem',
       top: '50%',
       transform: 'translateY(-50%)',
       zIndex: 1000,
